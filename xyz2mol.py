@@ -531,18 +531,23 @@ def read_xyz_file(filename, look_for_charge=True):
     charge = 0
     title = ""
 
-    with open(filename, "r") as file:
-        for line_number, line in enumerate(file):
-            if line_number == 0:
-                num_atoms = int(line)
-            elif line_number == 1:
-                title = line
-                if "charge=" in line:
-                    charge = int(line.split("=")[1])
-            else:
-                atomic_symbol, x, y, z = line.split()
-                atomic_symbols.append(atomic_symbol)
-                xyz_coordinates.append([float(x), float(y), float(z)])
+    file = None
+    if isinstance(filename, str):
+        file = open(filename, "r")
+    else:
+        file = filename # if it is StringIO
+
+    for line_number, line in enumerate(file):
+        if line_number == 0:
+            num_atoms = int(line)
+        elif line_number == 1:
+            title = line
+            if "charge=" in line:
+                charge = int(line.split("=")[1])
+        else:
+            atomic_symbol, x, y, z = line.split()
+            atomic_symbols.append(atomic_symbol)
+            xyz_coordinates.append([float(x), float(y), float(z)])
 
     atoms = [int_atom(atom) for atom in atomic_symbols]
 
