@@ -10,10 +10,15 @@ class MolGen(nn.Module):
     def __init__(self):
         super().__init__()
 
-
     def forward(self):
         pass
 
+class MolDis(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self):
+        pass
 
 if __name__ == "__main__":
     pass
