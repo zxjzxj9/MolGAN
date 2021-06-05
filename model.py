@@ -7,8 +7,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class MolGen(nn.Module):
-    def __init__(self):
+    def __init__(self, num_atom_typ, nhidden):
         super().__init__()
+        self.atom_embedding = nn.Embedding(num_atom_typ, nhidden)
 
     def forward(self):
         pass
