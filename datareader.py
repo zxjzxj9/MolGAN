@@ -1,9 +1,14 @@
 #! /user/bin/env python
 
 import tarfile
+from io import StringIO
+
 from torch.utils.data import Dataset
 import numpy as np
 import rdkit
+
+from xyz2mol import read_xyz_file
+
 
 class QM9BZ2Dataset(Dataset):
     def __init__(self, filename):
@@ -20,7 +25,8 @@ class QM9BZ2Dataset(Dataset):
         info = self.file_info[idx]
         fin = self.fp.extractfile(info)
         xyz = fin.read().decode("ascii")
-        return xyz
+        mol = read_xyz_file(StringIO(xyz))
+        return mol
 
 if __name__ == "__main__":
     qmds = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")

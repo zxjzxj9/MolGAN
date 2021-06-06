@@ -545,6 +545,7 @@ def read_xyz_file(filename, look_for_charge=True):
             if "charge=" in line:
                 charge = int(line.split("=")[1])
         else:
+            print(line)
             atomic_symbol, x, y, z = line.split()
             atomic_symbols.append(atomic_symbol)
             xyz_coordinates.append([float(x), float(y), float(z)])
