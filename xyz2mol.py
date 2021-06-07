@@ -522,6 +522,9 @@ def get_proto_mol(atoms):
     return mol
 
 
+def read_qm9_xyz(filename, look_for_charge=True):
+    pass
+
 def read_xyz_file(filename, look_for_charge=True):
     """
     """
