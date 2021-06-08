@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import rdkit
 
-from xyz2mol import read_xyz_file
+from xyz2mol import read_xyz_file, read_qm9_xyz
 
 
 class QM9BZ2Dataset(Dataset):
@@ -25,7 +25,8 @@ class QM9BZ2Dataset(Dataset):
         info = self.file_info[idx]
         fin = self.fp.extractfile(info)
         xyz = fin.read().decode("ascii")
-        mol = read_xyz_file(StringIO(xyz))
+        print(xyz)
+        mol = read_qm9_xyz(StringIO(xyz))
         return mol
 
 if __name__ == "__main__":

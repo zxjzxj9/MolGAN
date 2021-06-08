@@ -523,7 +523,28 @@ def get_proto_mol(atoms):
 
 
 def read_qm9_xyz(filename, look_for_charge=True):
-    pass
+    atomic_symbols = []
+    xyz_coordinates = []
+    charge = 0
+    title = ""
+
+    file = None
+    if isinstance(filename, str):
+        file = open(filename, "r")
+    else:
+        file = filename # if it is StringIO
+
+    na = int(file.readline())
+    # print(na)
+    info = file.readline()
+
+    for _ in range(na):
+        atomic_symbol, x, y, z, atom_charge = file.readline.split()
+        atomic_symbols.append(atomic_symbol)
+        xyz_coordinates.append([float(x), float(y), float(z)])
+        charge += atom_charge
+
+    return atoms, charge, xyz_coordinates
 
 def read_xyz_file(filename, look_for_charge=True):
     """
@@ -548,7 +569,7 @@ def read_xyz_file(filename, look_for_charge=True):
             if "charge=" in line:
                 charge = int(line.split("=")[1])
         else:
-            print(line)
+            # print(line)
             atomic_symbol, x, y, z = line.split()
             atomic_symbols.append(atomic_symbol)
             xyz_coordinates.append([float(x), float(y), float(z)])
