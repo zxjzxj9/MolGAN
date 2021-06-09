@@ -511,7 +511,8 @@ def AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_graph=True)
 def get_proto_mol(atoms):
     """
     """
-    mol = Chem.MolFromSmarts("[#" + str(atoms[0]) + "]")
+    mol = Chem.MolFromSmarts("[" + str(atoms[0]) + "]")
+    # print(mol)
     rwMol = Chem.RWMol(mol)
     for i in range(1, len(atoms)):
         a = Chem.Atom(atoms[i])
@@ -539,12 +540,12 @@ def read_qm9_xyz(filename, look_for_charge=True):
     info = file.readline()
 
     for _ in range(na):
-        atomic_symbol, x, y, z, atom_charge = file.readline.split()
+        atomic_symbol, x, y, z, atom_charge = file.readline().split()
         atomic_symbols.append(atomic_symbol)
         xyz_coordinates.append([float(x), float(y), float(z)])
-        charge += atom_charge
+        charge += float(atom_charge)
 
-    return atoms, charge, xyz_coordinates
+    return atomic_symbols, charge, xyz_coordinates
 
 def read_xyz_file(filename, look_for_charge=True):
     """
@@ -575,7 +576,6 @@ def read_xyz_file(filename, look_for_charge=True):
             xyz_coordinates.append([float(x), float(y), float(z)])
 
     atoms = [int_atom(atom) for atom in atomic_symbols]
-
     return atoms, charge, xyz_coordinates
 
 

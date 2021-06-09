@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import rdkit
 
-from xyz2mol import read_xyz_file, read_qm9_xyz
+from xyz2mol import read_xyz_file, read_qm9_xyz, xyz2AC
 
 
 class QM9BZ2Dataset(Dataset):
@@ -25,10 +25,12 @@ class QM9BZ2Dataset(Dataset):
         info = self.file_info[idx]
         fin = self.fp.extractfile(info)
         xyz = fin.read().decode("ascii")
-        print(xyz)
-        mol = read_qm9_xyz(StringIO(xyz))
+        # print(xyz)
+        atoms, charge, xyz_coordinates = read_qm9_xyz(StringIO(xyz))
+        conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
         return mol
 
 if __name__ == "__main__":
-    qmds = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
-    print(qmds[12])
+    qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
+    mol: rdkit.Chem.Mol = qmd[12]
+    print(rdkit.Chem.MolToSmiles(mol))
