@@ -3,12 +3,34 @@
 import tarfile
 from io import StringIO
 
+import dgl
 from torch.utils.data import Dataset
 import numpy as np
 import rdkit
 
-from xyz2mol import read_xyz_file, read_qm9_xyz, xyz2AC
+from xyz2mol import read_xyz_file, read_qm9_xyz, xyz2AC, xyz2mol
 
+bond_map = {
+    rdkit.Chem.BondType.ZERO: 0,
+    rdkit.Chem.BondType.SINGLE: 1,
+    rdkit.Chem.BondType.DOUBLE: 2,
+    rdkit.Chem.BondType.TRIPLE: 3,
+    rdkit.Chem.BondType.AROMATIC: 4
+}
+
+nbond = len(bond_map)
+
+atom_map = {
+    "UNK": 0,
+    "C": 1,
+    "H": 2,
+    "O": 3,
+    "N": 4,
+    "P": 5,
+    "S": 6
+}
+
+natom = len(atom_map)
 
 class QM9BZ2Dataset(Dataset):
     def __init__(self, filename):
@@ -27,10 +49,14 @@ class QM9BZ2Dataset(Dataset):
         xyz = fin.read().decode("ascii")
         # print(xyz)
         atoms, charge, xyz_coordinates = read_qm9_xyz(StringIO(xyz))
-        conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
+        # conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
+        mol: rdkit.Chem.Mol = xyz2mol(atoms, xyz_coordinates)[0]
+
+        graph = dgl.DGLGraph()
+        # graph.add_nodes(mol.GetNumAtoms(), )
         return mol
 
 if __name__ == "__main__":
     qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
-    mol: rdkit.Chem.Mol = qmd[12]
+    mol: rdkit.Chem.Mol = qmd[10]
     print(rdkit.Chem.MolToSmiles(mol))

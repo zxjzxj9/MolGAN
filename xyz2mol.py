@@ -429,10 +429,12 @@ def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True):
     # make a list of valences, e.g. for CO: [[4],[2,1]]
     valences_list_of_lists = []
     AC_valence = list(AC.sum(axis=1))
+    # print(AC_valence)
 
     for i, (atomicNum, valence) in enumerate(zip(atoms, AC_valence)):
         # valence can't be smaller than number of neighbourgs
         possible_valence = [x for x in atomic_valence[atomicNum] if x >= valence]
+        # print(i, atomicNum, possible_valence, atomic_valence[atomicNum])
         if not possible_valence:
             print('Valence of atom', i, 'is', valence, 'which bigger than allowed max', max(atomic_valence[atomicNum]),
                   '. Stopping')
@@ -511,7 +513,7 @@ def AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_graph=True)
 def get_proto_mol(atoms):
     """
     """
-    mol = Chem.MolFromSmarts("[" + str(atoms[0]) + "]")
+    mol = Chem.MolFromSmarts("[#" + str(atoms[0]) + "]")
     # print(mol)
     rwMol = Chem.RWMol(mol)
     for i in range(1, len(atoms)):
@@ -541,7 +543,7 @@ def read_qm9_xyz(filename, look_for_charge=True):
 
     for _ in range(na):
         atomic_symbol, x, y, z, atom_charge = file.readline().split()
-        atomic_symbols.append(atomic_symbol)
+        atomic_symbols.append(int_atom(atomic_symbol))
         xyz_coordinates.append([float(x), float(y), float(z)])
         charge += float(atom_charge)
 
