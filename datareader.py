@@ -75,7 +75,7 @@ class QM9BZ2Dataset(Dataset):
         end = torch.tensor(end)
         feat = F.one_hot(torch.tensor(feat), len(bond_map))
         graph.add_edges(start, end, {'h': feat})
-        return mol
+        return graph
 
 if __name__ == "__main__":
     qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
