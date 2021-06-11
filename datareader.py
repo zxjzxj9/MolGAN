@@ -4,6 +4,8 @@ import tarfile
 from io import StringIO
 
 import dgl
+import torch
+import torch.nn.functional as F
 from torch.utils.data import Dataset
 import numpy as np
 import rdkit
@@ -53,7 +55,26 @@ class QM9BZ2Dataset(Dataset):
         mol: rdkit.Chem.Mol = xyz2mol(atoms, xyz_coordinates)[0]
 
         graph = dgl.DGLGraph()
+        atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
+        nodes = [atom_map[atom] if atom in atom_map else 0 for atom in atoms]
+        # print(nodes)
         # graph.add_nodes(mol.GetNumAtoms(), )
+        graph.add_nodes(len(nodes), {'x': torch.tensor(nodes)})
+        bond: rdkit.Chem.Bond
+        start = []
+        end = []
+        feat = []
+        for bond in mol.GetBonds():
+            start.append(bond.GetBeginAtomIdx())
+            end.append(bond.GetEndAtomIdx())
+            if bond.GetBondType() in bond_map:
+                feat.append(bond_map[bond.GetBondType()])
+            else:
+                feat.append(0)
+        start = torch.tensor(start)
+        end = torch.tensor(end)
+        feat = F.one_hot(torch.tensor(feat), len(bond_map))
+        graph.add_edges(start, end, {'h': feat})
         return mol
 
 if __name__ == "__main__":
