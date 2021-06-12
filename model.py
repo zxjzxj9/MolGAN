@@ -18,7 +18,7 @@ class MolGen(nn.Module):
             self.mod.append(nn.ReLU())
             prev = nfeat
         self.fc_atom = nn.Linear(prev, num_atom_typ)
-        self.fc_mol = nn.Linear(prev, natom*num_bond_typ)
+        self.fc_bond = nn.Linear(prev, natom*num_bond_typ)
 
     def forward(self):
         pass
