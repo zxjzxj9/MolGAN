@@ -2,6 +2,7 @@
 
 import dgl
 import dgl.function as fn
+import torch
 from dgl.nn.pytorch import GraphConv
 import torch.nn as nn
 import torch.nn.functional as F
@@ -18,10 +19,22 @@ class MolGen(nn.Module):
             self.mod.append(nn.ReLU())
             prev = nfeat
         self.fc_atom = nn.Linear(prev, num_atom_typ)
-        self.fc_bond = nn.Linear(prev, natom*num_bond_typ)
+        self.fc_bond = nn.Linear(prev, natom*natom*num_bond_typ)
+        self.natom = natom
+        self.num_atom_typ = num_atom_typ
+        self.num_bond_typ = num_bond_typ
 
-    def forward(self):
-        pass
+    def forward(self, bs=32, beta = 1.0):
+
+        x = torch.randn(bs, self.nhidden)
+        for mod in self.mod:
+            x = mod(x)
+        atom = self.fc_atom(x).softmax(-1)
+        bond = self.fc_bond(x)\
+            .view(-1, self.natom, self.natom, self.num_bond_typ)\
+            .softmax(-1)
+
+        return atom, bond
 
 class MolDis(nn.Module):
     def __init__(self):
