@@ -24,17 +24,23 @@ class MolGen(nn.Module):
         self.num_atom_typ = num_atom_typ
         self.num_bond_typ = num_bond_typ
 
-    def forward(self, bs=32, beta = 1.0):
+    def forward(self, bs=32, tau=1.0):
 
         x = torch.randn(bs, self.nhidden)
         for mod in self.mod:
             x = mod(x)
-        atom = self.fc_atom(x).softmax(-1)
+        atom = self.fc_atom(x)
         bond = self.fc_bond(x)\
-            .view(-1, self.natom, self.natom, self.num_bond_typ)\
-            .softmax(-1)
+            .view(-1, self.natom, self.natom, self.num_bond_typ)
 
-        return atom, bond
+        if self.training:
+            atom = F.gumbel_softmax(atom, tau=tau, hard=True)
+            bond = F.gumbel_softmax(bond, tau=tau, hard=True)
+
+            # Build a molecular graph
+
+        else:
+            pass
 
 class MolDis(nn.Module):
     def __init__(self):
