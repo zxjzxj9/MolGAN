@@ -38,7 +38,9 @@ class MolGen(nn.Module):
             bond = F.gumbel_softmax(bond, tau=tau, hard=True)
 
             # Build a molecular graph
-
+            graph = dgl.DGLGraph()
+            graph.add_nodes(bs*self.natom, {'x': atom})
+            # graph.add_edges(torch.arange(self.natom), torch.arange(self.natom), {'h': feat})
         else:
             pass
 
