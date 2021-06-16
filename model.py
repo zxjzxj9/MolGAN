@@ -40,7 +40,11 @@ class MolGen(nn.Module):
             # Build a molecular graph
             graph = dgl.DGLGraph()
             graph.add_nodes(bs*self.natom, {'x': atom})
-            # graph.add_edges(torch.arange(self.natom), torch.arange(self.natom), {'h': feat})
+
+            start, end = torch.meshgrid(torch.arange(self.natom), torch.arange(self.natom))
+            start = torch.cat(bs*[start])
+            end = torch.cat(bs*[end])
+            graph.add_edges(start, end, {'h': bond})
         else:
             pass
 
