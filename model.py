@@ -45,6 +45,9 @@ class MolGen(nn.Module):
             start = torch.cat(bs*[start])
             end = torch.cat(bs*[end])
             graph.add_edges(start, end, {'h': bond})
+
+            # indeed we are generating a batch of graphs
+            return graph
         else:
             pass
 
