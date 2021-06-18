@@ -55,8 +55,8 @@ class MolDis(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self):
+    def forward(self, graph):
         pass
 
 if __name__ == "__main__":
-    pass
+    gen = MolGen(20, 8, 5, 32, [128, 256, 512])
