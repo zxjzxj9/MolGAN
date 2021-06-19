@@ -11,7 +11,7 @@ class MolGen(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ, nhidden, nfeats):
         super().__init__()
         # self.atom_embedding = nn.Embedding(num_atom_typ, nhidden)
-        self.mod = nn.Module([])
+        self.mod = nn.ModuleList([])
         self.nhidden = nhidden
         prev = nhidden
         for nfeat in nfeats:
@@ -42,9 +42,9 @@ class MolGen(nn.Module):
             graph.add_nodes(bs*self.natom, {'x': atom})
 
             start, end = torch.meshgrid(torch.arange(self.natom), torch.arange(self.natom))
-            start = torch.cat(bs*[start])
-            end = torch.cat(bs*[end])
-            graph.add_edges(start, end, {'h': bond})
+            start = torch.cat(bs*[start]).flatten()
+            end = torch.cat(bs*[end]).flatten()
+            graph.add_edges(start, end, {'h': bond.view(-1, bond.shape[-1])})
 
             # indeed we are generating a batch of graphs
             return graph
@@ -60,3 +60,4 @@ class MolDis(nn.Module):
 
 if __name__ == "__main__":
     gen = MolGen(20, 8, 5, 32, [128, 256, 512])
+    print(gen())
