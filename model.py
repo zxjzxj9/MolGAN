@@ -3,7 +3,7 @@
 import dgl
 import dgl.function as fn
 import torch
-from dgl.nn.pytorch import GraphConv
+from dgl.nn.pytorch import RelGraphConv
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -52,8 +52,13 @@ class MolGen(nn.Module):
             pass
 
 class MolDis(nn.Module):
-    def __init__(self):
+    def __init__(self, natom, num_atom_typ, num_bond_typ):
         super().__init__()
+        self.natom = natom
+        self.num_atom_typ = num_atom_typ
+        self.num_bond_type = num_bond_typ
+        self.layer1 = RelGraphConv(num_atom_typ, 32, num_bond_typ)
+        self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ)
 
     def forward(self, graph):
         pass
