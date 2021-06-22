@@ -60,13 +60,14 @@ class MolDis(nn.Module):
         self.layer1 = RelGraphConv(num_atom_typ, 32, num_bond_typ)
         self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ)
 
-    def forward(self, g):
+    def forward(self, g, bs=32):
 
         x = self.layer1(g, g['x'], g['h'])
         x = F.relu(x)
         x = self.layer1(g, x, g['h'])
         x = F.relu(x)
         # How to aggregate it?
+
         return x
 
 
