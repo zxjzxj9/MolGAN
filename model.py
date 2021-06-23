@@ -61,15 +61,14 @@ class MolDis(nn.Module):
         self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ)
 
     def forward(self, g, bs=32):
-
         x = self.layer1(g, g['x'], g['h'])
         x = F.relu(x)
         x = self.layer1(g, x, g['h'])
         x = F.relu(x)
         # How to aggregate it?
-
-        return x
-
+        xs = x.split(bs, dim=0)
+        vs = torch.stack([x.mean(dim=0) for x in xs], dim=0)
+        return vs
 
 if __name__ == "__main__":
     gen = MolGen(20, 8, 5, 32, [128, 256, 512])
