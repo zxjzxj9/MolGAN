@@ -18,7 +18,7 @@ class MolGen(nn.Module):
             self.mod.append(nn.Linear(prev, nfeat))
             self.mod.append(nn.ReLU())
             prev = nfeat
-        self.fc_atom = nn.Linear(prev, num_atom_typ)
+        self.fc_atom = nn.Linear(prev, natom*num_atom_typ)
         self.fc_bond = nn.Linear(prev, natom*natom*num_bond_typ)
         self.natom = natom
         self.num_atom_typ = num_atom_typ
@@ -36,6 +36,7 @@ class MolGen(nn.Module):
         if self.training:
             atom = F.gumbel_softmax(atom, tau=tau, hard=True)
             bond = F.gumbel_softmax(bond, tau=tau, hard=True)
+            print(atom.shape)
 
             # Build a molecular graph
             graph = dgl.DGLGraph()
@@ -61,9 +62,9 @@ class MolDis(nn.Module):
         self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ)
 
     def forward(self, g, bs=32):
-        x = self.layer1(g, g['x'], g['h'])
+        x = self.layer1(g, g.ndata['x'], g.edata['h'])
         x = F.relu(x)
-        x = self.layer1(g, x, g['h'])
+        x = self.layer1(g, x, g.ndata['h'])
         x = F.relu(x)
         # How to aggregate it?
         xs = x.split(bs, dim=0)
@@ -72,4 +73,9 @@ class MolDis(nn.Module):
 
 if __name__ == "__main__":
     gen = MolGen(20, 8, 5, 32, [128, 256, 512])
-    print(gen())
+    dis = MolDis(20, 8, 5)
+    mol = gen()
+    print(mol.ndata['x'].shape)
+    print(mol.edata['h'].shape)
+    ret = dis(mol)
+    # print(ret)
