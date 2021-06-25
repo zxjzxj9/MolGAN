@@ -40,12 +40,15 @@ class MolGen(nn.Module):
 
             # Build a molecular graph
             graph = dgl.DGLGraph()
-            graph.add_nodes(bs*self.natom, {'x': atom})
+            graph.add_nodes(bs*self.natom, {'x': atom.view(-1, self.num_atom_typ)})
 
             start, end = torch.meshgrid(torch.arange(self.natom), torch.arange(self.natom))
             start = torch.cat(bs*[start]).flatten()
             end = torch.cat(bs*[end]).flatten()
-            graph.add_edges(start, end, {'h': bond.view(-1, bond.shape[-1])})
+            print(start.shape, end.shape)
+
+            _, edges = bond.view(-1, self.num_bond_typ).max(-1)
+            graph.add_edges(start, end, {'h': edges})
 
             # indeed we are generating a batch of graphs
             return graph
@@ -58,13 +61,13 @@ class MolDis(nn.Module):
         self.natom = natom
         self.num_atom_typ = num_atom_typ
         self.num_bond_type = num_bond_typ
-        self.layer1 = RelGraphConv(num_atom_typ, 32, num_bond_typ)
-        self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ)
+        self.layer1 = RelGraphConv(num_atom_typ, 32, num_bond_typ, self_loop=False)
+        self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ, self_loop=False)
 
     def forward(self, g, bs=32):
         x = self.layer1(g, g.ndata['x'], g.edata['h'])
         x = F.relu(x)
-        x = self.layer1(g, x, g.ndata['h'])
+        x = self.layer1(g, x, g.edata['h'])
         x = F.relu(x)
         # How to aggregate it?
         xs = x.split(bs, dim=0)
