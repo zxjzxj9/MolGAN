@@ -7,6 +7,9 @@ from dgl.nn.pytorch import RelGraphConv
 import torch.nn as nn
 import torch.nn.functional as F
 
+# should refer to the following link for details
+# https://github.com/nicola-decao/MolGAN/blob/master/utils/layers.py
+
 class MolGen(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ, nhidden, nfeats):
         super().__init__()
