@@ -10,6 +10,25 @@ import torch.nn.functional as F
 # should refer to the following link for details
 # https://github.com/nicola-decao/MolGAN/blob/master/utils/layers.py
 
+class RGCN(nn.Module):
+    def __init__(self, ninput, noutput, edge_type):
+        super().__init__()
+        self.fc = nn.Linear(ninput, noutput)
+        self.edge_type = edge_type # Not include non-bond type
+        self.edge_mod = nn.ModuleList([nn.Linear(ninput, noutput) for _ in range(edge_type)])
+        self.dropout = nn.Dropout(0.1)
+
+    def forward(self, node, edge, hidden=None):
+        # Remove non-bonding edge: bsxnaxnaxtype
+        edge = edge[..., 1:]
+        if hidden is not None: node = torch.cat([node, hidden], -1)
+        # bsxnaxhiddenxtype
+        x = torch.stack([mod(edge) for mod in self.edge_mod], -1)
+        x = torch.einsum("bijk,bjlk->bil", edge, x)
+        x = F.relu(x + node)
+        x = self.dropout(x)
+        return x
+
 class MolGen(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ, nhidden, nfeats):
         super().__init__()
