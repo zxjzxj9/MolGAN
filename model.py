@@ -29,6 +29,21 @@ class RGCN(nn.Module):
         x = self.dropout(x)
         return x
 
+class GraphAggr(nn.Module):
+    def __init__(self, ninput, noutput):
+        super().__init__()
+        self.fc1 = nn.Linear(ninput, noutput)
+        self.fc2 = nn.Linear(ninput, noutput)
+        self.dropout = nn.Dropout(0.1)
+
+    def forwar(self, node):
+        # node: bs x na x feat
+        x = self.fc1(node).sigmoid()
+        y = self.fc2(node).relu()
+        x = (x*y).sum(1).relu()
+        x = self.dropout(x)
+        return x
+
 class MolGen(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ, nhidden, nfeats):
         super().__init__()
