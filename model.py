@@ -73,22 +73,10 @@ class MolGen(nn.Module):
         if self.training:
             atom = F.gumbel_softmax(atom, tau=tau, hard=True)
             bond = F.gumbel_softmax(bond, tau=tau, hard=True)
-            print(atom.shape)
+            atom = atom.view(-1, self.num_atom_typ)
+            edges = bond.view(-1, self.num_bond_typ)
 
-            # Build a molecular graph
-            graph = dgl.DGLGraph()
-            graph.add_nodes(bs*self.natom, {'x': atom.view(-1, self.num_atom_typ)})
-
-            start, end = torch.meshgrid(torch.arange(self.natom), torch.arange(self.natom))
-            start = torch.cat(bs*[start]).flatten()
-            end = torch.cat(bs*[end]).flatten()
-            print(start.shape, end.shape)
-
-            _, edges = bond.view(-1, self.num_bond_typ).max(-1)
-            graph.add_edges(start, end, {'h': edges})
-
-            # indeed we are generating a batch of graphs
-            return graph
+            return atom, edges
         else:
             pass
 
