@@ -86,18 +86,19 @@ class MolDis(nn.Module):
         self.natom = natom
         self.num_atom_typ = num_atom_typ
         self.num_bond_type = num_bond_typ
-        self.layer1 = RelGraphConv(num_atom_typ, 32, num_bond_typ, self_loop=False)
-        self.layer2 = RelGraphConv(num_atom_typ, 64, num_bond_typ, self_loop=False)
+        self.layer1 = RGCN(num_atom_typ, 32, num_bond_typ-1)
+        self.agg1 = GraphAggr(32, 32)
+        self.layer2 = RGCN(32, 64, num_bond_typ-1)
+        self.agg2 = GraphAggr(64, 64)
+        self.agg3 = GraphAggr(64, 1)
 
-    def forward(self, g, bs=32):
-        x = self.layer1(g, g.ndata['x'], g.edata['h'])
-        x = F.relu(x)
-        x = self.layer1(g, x, g.edata['h'])
-        x = F.relu(x)
-        # How to aggregate it?
-        xs = x.split(bs, dim=0)
-        vs = torch.stack([x.mean(dim=0) for x in xs], dim=0)
-        return vs
+    def forward(self, node, edge):
+        x = self.layer1(node, edge)
+        x = self.agg1(x)
+        x = self.layer2(x, edge)
+        x = self.agg2(x)
+        x = self.agg3(x).squeeze()
+        return x
 
 if __name__ == "__main__":
     gen = MolGen(20, 8, 5, 32, [128, 256, 512])
