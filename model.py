@@ -73,10 +73,10 @@ class MolGen(nn.Module):
         if self.training:
             atom = F.gumbel_softmax(atom, tau=tau, hard=True)
             bond = F.gumbel_softmax(bond, tau=tau, hard=True)
-            atom = atom.view(-1, self.num_atom_typ)
-            edges = bond.view(-1, self.num_bond_typ)
+            atom = atom.view(-1, self.natom, self.num_atom_typ)
+            bond = bond.view(-1, self.natom, self.natom, self.num_bond_typ)
 
-            return atom, edges
+            return atom, bond
         else:
             pass
 
@@ -103,8 +103,5 @@ class MolDis(nn.Module):
 if __name__ == "__main__":
     gen = MolGen(20, 8, 5, 32, [128, 256, 512])
     dis = MolDis(20, 8, 5)
-    mol = gen()
-    print(mol.ndata['x'].shape)
-    print(mol.edata['h'].shape)
-    ret = dis(mol)
-    # print(ret)
+    atom, bond = gen()
+    print(atom.shape, bond.shape)
