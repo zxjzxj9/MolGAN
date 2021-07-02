@@ -86,13 +86,14 @@ class MolDis(nn.Module):
         self.natom = natom
         self.num_atom_typ = num_atom_typ
         self.num_bond_type = num_bond_typ
-        self.layer1 = RGCN(num_atom_typ, 32, num_bond_typ-1)
+        self.layer1 = RGCN(num_atom_typ-1, 32, num_bond_typ-1)
         self.agg1 = GraphAggr(32, 32)
         self.layer2 = RGCN(32, 64, num_bond_typ-1)
         self.agg2 = GraphAggr(64, 64)
         self.agg3 = GraphAggr(64, 1)
 
     def forward(self, node, edge):
+        node = node[:, :, 1:] # remove none atoms
         x = self.layer1(node, edge)
         x = self.agg1(x)
         x = self.layer2(x, edge)
