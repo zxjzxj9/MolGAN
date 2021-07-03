@@ -21,9 +21,11 @@ class RGCN(nn.Module):
     def forward(self, node, edge, hidden=None):
         # Remove non-bonding edge: bsxnaxnaxtype
         edge = edge[..., 1:]
+        print(edge.shape)
         if hidden is not None: node = torch.cat([node, hidden], -1)
         # bsxnaxhiddenxtype
-        x = torch.stack([mod(edge) for mod in self.edge_mod], -1)
+        x = torch.stack([mod(node) for mod in self.edge_mod], -1)
+        print(x.shape)
         x = torch.einsum("bijk,bjlk->bil", edge, x)
         x = F.relu(x + node)
         x = self.dropout(x)
@@ -106,3 +108,5 @@ if __name__ == "__main__":
     dis = MolDis(20, 8, 5)
     atom, bond = gen()
     print(atom.shape, bond.shape)
+    ret = dis(atom, bond)
+    print(ret.shape)
