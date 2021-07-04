@@ -21,12 +21,14 @@ class RGCN(nn.Module):
     def forward(self, node, edge, hidden=None):
         # Remove non-bonding edge: bsxnaxnaxtype
         edge = edge[..., 1:]
-        print(edge.shape)
+        # print(edge.shape)
         if hidden is not None: node = torch.cat([node, hidden], -1)
         # bsxnaxhiddenxtype
         x = torch.stack([mod(node) for mod in self.edge_mod], -1)
+        node = self.fc(node)
         print(x.shape)
         x = torch.einsum("bijk,bjlk->bil", edge, x)
+        print(x.shape, node.shape)
         x = F.relu(x + node)
         x = self.dropout(x)
         return x
@@ -38,7 +40,7 @@ class GraphAggr(nn.Module):
         self.fc2 = nn.Linear(ninput, noutput)
         self.dropout = nn.Dropout(0.1)
 
-    def forwar(self, node):
+    def forward(self, node):
         # node: bs x na x feat
         x = self.fc1(node).sigmoid()
         y = self.fc2(node).relu()
@@ -90,7 +92,7 @@ class MolDis(nn.Module):
         self.num_bond_type = num_bond_typ
         self.layer1 = RGCN(num_atom_typ-1, 32, num_bond_typ-1)
         self.agg1 = GraphAggr(32, 32)
-        self.layer2 = RGCN(32, 64, num_bond_typ-1)
+        self.layer2 = RGCN(32 + num_atom_typ-1, 64, num_bond_typ-1)
         self.agg2 = GraphAggr(64, 64)
         self.agg3 = GraphAggr(64, 1)
 
@@ -98,7 +100,7 @@ class MolDis(nn.Module):
         node = node[:, :, 1:] # remove none atoms
         x = self.layer1(node, edge)
         x = self.agg1(x)
-        x = self.layer2(x, edge)
+        x = self.layer2(node, edge, x)
         x = self.agg2(x)
         x = self.agg3(x).squeeze()
         return x
