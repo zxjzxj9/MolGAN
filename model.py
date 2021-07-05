@@ -22,13 +22,14 @@ class RGCN(nn.Module):
         # Remove non-bonding edge: bsxnaxnaxtype
         edge = edge[..., 1:]
         # print(edge.shape)
+        # print(node.shape, hidden.shape if hidden is not None else None)
         if hidden is not None: node = torch.cat([node, hidden], -1)
         # bsxnaxhiddenxtype
         x = torch.stack([mod(node) for mod in self.edge_mod], -1)
         node = self.fc(node)
-        print(x.shape)
+        # print(x.shape)
         x = torch.einsum("bijk,bjlk->bil", edge, x)
-        print(x.shape, node.shape)
+        # print(x.shape, node.shape)
         x = F.relu(x + node)
         x = self.dropout(x)
         return x
@@ -99,9 +100,9 @@ class MolDis(nn.Module):
     def forward(self, node, edge):
         node = node[:, :, 1:] # remove none atoms
         x = self.layer1(node, edge)
-        x = self.agg1(x)
+        # x = self.agg1(x)
         x = self.layer2(node, edge, x)
-        x = self.agg2(x)
+        # x = self.agg2(x)
         x = self.agg3(x).squeeze()
         return x
 
@@ -112,3 +113,4 @@ if __name__ == "__main__":
     print(atom.shape, bond.shape)
     ret = dis(atom, bond)
     print(ret.shape)
+    print(ret.sigmoid())
