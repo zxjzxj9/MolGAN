@@ -35,6 +35,12 @@ atom_map = {
 
 natom = len(atom_map)
 
+def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
+    pass
+
+def graph_to_mol(atom, bond):
+    pass
+
 class QM9BZ2Dataset(Dataset):
     def __init__(self, filename):
         super().__init__()
