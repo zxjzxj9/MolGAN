@@ -36,7 +36,20 @@ atom_map = {
 natom = len(atom_map)
 
 def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
-    pass
+    atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
+    nodes = [atom_map[atom] if atom in atom_map else 0 for atom in atoms]
+    nodes = nodes + [0]*(max_atom - len(nodes))
+    nodes = F.one_hot(nodes, len(atom_map))
+    nodes = nodes[:max_atom]
+    atom = nodes
+    feat = torch.zeros(max_atom, max_atom, dtype=torch.int32)
+    for bond in mol.GetBonds():
+        start = bond.GetBeginAtomIdx()
+        end = bond.GetEndAtomIdx()
+        feat[start, end] = bond_map[bond.GetBondType()]
+    feat = F.one_hot(feat, len(bond_map))
+    bond = feat
+    return atom, bond
 
 def graph_to_mol(atom, bond):
     pass
