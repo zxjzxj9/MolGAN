@@ -46,6 +46,7 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     for bond in mol.GetBonds():
         start = bond.GetBeginAtomIdx()
         end = bond.GetEndAtomIdx()
+        feat[end, start] = bond_map[bond.GetBondType()]
         feat[start, end] = bond_map[bond.GetBondType()]
     feat = F.one_hot(feat, len(bond_map))
     bond = feat
