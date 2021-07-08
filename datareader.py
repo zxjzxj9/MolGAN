@@ -19,6 +19,7 @@ bond_map = {
     rdkit.Chem.BondType.TRIPLE: 3,
     rdkit.Chem.BondType.AROMATIC: 4
 }
+bondtyp_map = {v:k for k, v in bond_map.items()}
 
 nbond = len(bond_map)
 
@@ -33,6 +34,7 @@ atom_map = {
     "S": 7
 }
 
+serial_map = {v: k for k, v in atom_map.items()}
 natom = len(atom_map)
 
 def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
@@ -53,7 +55,24 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     return atom, bond
 
 def graph_to_mol(atom, bond):
-    pass
+    # atom: naxfeat
+    # bond: naxnaxfeat
+    mol = rdkit.Chem.RWMol()
+    atom = atom.argmax(-1)
+    bond = bond.argmax(-1)
+    valid_atoms = {} # graph -> mol
+    cnt = 0
+    for idx, val in enumerate(list(atom)):
+        if val > 0:
+            valid_atoms[idx] = cnt
+            cnt += 1
+            mol.AddAtom(serial_map[val])
+    vk = valid_atoms.keys()
+    for i in range(len(vk)):
+        for j in range(0, i):
+            if bond[i][j] > 0:
+                mol.AddBond(valid_atoms[i], valid_atoms[j], bondtyp_map[bond[i][j]])
+    return mol
 
 class QM9BZ2Dataset(Dataset):
     def __init__(self, filename):
