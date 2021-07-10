@@ -97,5 +97,7 @@ class QM9BZ2Dataset(Dataset):
 
 if __name__ == "__main__":
     qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
-    mol: rdkit.Chem.Mol = qmd[10]
-    print(rdkit.Chem.MolToSmiles(mol))
+    # mol: rdkit.Chem.Mol = qmd[10]
+    # print(rdkit.Chem.MolToSmiles(mol))
+    atom, bond = qmd[10]
+    mol = graph_to_mol(atom, bond)
