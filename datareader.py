@@ -3,11 +3,11 @@
 import tarfile
 from io import StringIO
 
-import dgl
+# import dgl
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-import numpy as np
+# import numpy as np
 import rdkit
 
 from xyz2mol import read_xyz_file, read_qm9_xyz, xyz2AC, xyz2mol
@@ -40,11 +40,12 @@ natom = len(atom_map)
 def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
     nodes = [atom_map[atom] if atom in atom_map else 0 for atom in atoms]
-    nodes = nodes + [0]*(max_atom - len(nodes))
+    nodes = torch.tensor(nodes + [0]*(max_atom - len(nodes)))
+    # print(nodes)
     nodes = F.one_hot(nodes, len(atom_map))
     nodes = nodes[:max_atom]
     atom = nodes
-    feat = torch.zeros(max_atom, max_atom, dtype=torch.int32)
+    feat = torch.zeros(max_atom, max_atom, dtype=torch.int64)
     for bond in mol.GetBonds():
         start = bond.GetBeginAtomIdx()
         end = bond.GetEndAtomIdx()
@@ -66,7 +67,7 @@ def graph_to_mol(atom, bond):
         if val > 0:
             valid_atoms[idx] = cnt
             cnt += 1
-            mol.AddAtom(serial_map[val])
+            mol.AddAtom(serial_map[val.item()])
     vk = valid_atoms.keys()
     for i in range(len(vk)):
         for j in range(0, i):
@@ -100,4 +101,5 @@ if __name__ == "__main__":
     # mol: rdkit.Chem.Mol = qmd[10]
     # print(rdkit.Chem.MolToSmiles(mol))
     atom, bond = qmd[10]
+    # print(atom, bond)
     mol = graph_to_mol(atom, bond)
