@@ -67,12 +67,13 @@ def graph_to_mol(atom, bond):
         if val > 0:
             valid_atoms[idx] = cnt
             cnt += 1
-            mol.AddAtom(serial_map[val.item()])
+            mol.AddAtom(rdkit.Chem.Atom(serial_map[val.item()]))
     vk = valid_atoms.keys()
     for i in range(len(vk)):
         for j in range(0, i):
             if bond[i][j] > 0:
-                mol.AddBond(valid_atoms[i], valid_atoms[j], bondtyp_map[bond[i][j]])
+                mol.AddBond(valid_atoms[i], valid_atoms[j],
+                            bondtyp_map[bond[i][j].item()])
     return mol
 
 class QM9BZ2Dataset(Dataset):
@@ -94,6 +95,7 @@ class QM9BZ2Dataset(Dataset):
         atoms, charge, xyz_coordinates = read_qm9_xyz(StringIO(xyz))
         # conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
         mol: rdkit.Chem.Mol = xyz2mol(atoms, xyz_coordinates)[0]
+        print(rdkit.Chem.MolToSmiles(mol))
         return mol_to_graph(mol)
 
 if __name__ == "__main__":
@@ -103,3 +105,4 @@ if __name__ == "__main__":
     atom, bond = qmd[10]
     # print(atom, bond)
     mol = graph_to_mol(atom, bond)
+    print(rdkit.Chem.MolToSmiles(mol))
