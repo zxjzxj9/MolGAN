@@ -95,7 +95,7 @@ class QM9BZ2Dataset(Dataset):
         atoms, charge, xyz_coordinates = read_qm9_xyz(StringIO(xyz))
         # conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
         mol: rdkit.Chem.Mol = xyz2mol(atoms, xyz_coordinates)[0]
-        print(rdkit.Chem.MolToSmiles(mol))
+        # print(rdkit.Chem.MolToSmiles(mol))
         return mol_to_graph(mol)
 
 if __name__ == "__main__":
