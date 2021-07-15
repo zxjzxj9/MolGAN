@@ -1,12 +1,19 @@
 #! /usr/bin/env python
 
 from model import MolGen, MolDis
+import toml
 
-def train():
+def train(model, niter):
     pass
 
-def test():
+def test(model):
     pass
 
 if __name__ == "__main__":
-    pass
+    with open("./hparam.yml", "r") as fin:
+        conf = toml.load(fin)
+
+    model = {
+        "gen": None,
+        "dis": None
+    }
