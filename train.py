@@ -10,7 +10,7 @@ def test(model):
     pass
 
 if __name__ == "__main__":
-    with open("./hparam.yml", "r") as fin:
+    with open("hparam.toml", "r") as fin:
         conf = toml.load(fin)
 
     model = {
