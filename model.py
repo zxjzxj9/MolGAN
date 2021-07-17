@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-import dgl
-import dgl.function as fn
+# import dgl
+# import dgl.function as fn
 import torch
-from dgl.nn.pytorch import RelGraphConv
+# from dgl.nn.pytorch import RelGraphConv
 import torch.nn as nn
 import torch.nn.functional as F
 
