@@ -2,8 +2,9 @@
 
 from model import MolGen, MolDis
 import toml
+import torch
 
-def train(model, niter):
+def train(model, opt, niter):
     pass
 
 def test(model):
@@ -17,4 +18,9 @@ if __name__ == "__main__":
         "gen": MolGen(conf["num_atom"], conf["num_atom_type"], conf["num_bond_type"],
                       conf["num_hidden"], conf["gen_layer"]),
         "dis": MolDis(conf["num_atom"], conf["num_atom_type"], conf["num_bond_type"])
+    }
+
+    optimizer = {
+        "gen": torch.optim.Adam(params=model["gen"].parameters(), lr=conf["learning_rate"]),
+        "dis": torch.optim.Adam(params=model["dis"].parameters(), lr=conf["learning_rate"])
     }
