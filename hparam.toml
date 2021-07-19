@@ -1,5 +1,8 @@
 version = "0.1"
 
+# Training data
+data_folder = "datafolder/dsgdb9nsd.xyz.tar.bz2"
+
 # Model HParams
 num_atom = 20
 num_atom_type = 8

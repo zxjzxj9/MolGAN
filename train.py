@@ -4,10 +4,10 @@ from model import MolGen, MolDis
 import toml
 import torch
 
-def train(model, opt, niter):
+def train(data, model, opt, niter):
     pass
 
-def test(model):
+def test(data, model):
     pass
 
 if __name__ == "__main__":
@@ -24,3 +24,4 @@ if __name__ == "__main__":
         "gen": torch.optim.Adam(params=model["gen"].parameters(), lr=conf["learning_rate"]),
         "dis": torch.optim.Adam(params=model["dis"].parameters(), lr=conf["learning_rate"])
     }
+
