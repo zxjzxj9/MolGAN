@@ -4,6 +4,7 @@ from model import MolGen, MolDis
 import toml
 import torch
 from datareader import QM9BZ2Dataset
+from torch.utils.data import DataLoader
 
 def train(data, model, opt, niter):
     pass
@@ -27,3 +28,4 @@ if __name__ == "__main__":
     }
 
     ds = QM9BZ2Dataset(conf["data_path"])
+    dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=8, pin_memory=True)
