@@ -3,14 +3,25 @@
 from model import MolGen, MolDis
 import toml
 import torch
+import torch.nn.functional as F
 from datareader import QM9BZ2Dataset
 from torch.utils.data import DataLoader
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for atom_d, bond_d in data:
+        # First optimize G
         opt["gen"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
+        logit_g = model["dist"](atom_g, bond_g)
+        loss = -F.logsigmoid(logit_g)
+        loss.backward()
+        opt["gen"].step()
+
+        # Then optimize D
         opt["dis"].zero_grad()
+        atom_g, bond_g = model["gen"](bs, tau)
+        atom_d, bond_d = next(data)
+        logp = model["dist"](atom_g, bond_g)
 
     return niter + 1
 
