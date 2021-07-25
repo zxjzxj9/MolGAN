@@ -8,21 +8,23 @@ from datareader import QM9BZ2Dataset
 from torch.utils.data import DataLoader
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
-    for atom_d, bond_d in data:
-        # First optimize G
-        opt["gen"].zero_grad()
-        atom_g, bond_g = model["gen"](bs, tau)
-        logit_g = model["dist"](atom_g, bond_g)
-        loss = -F.logsigmoid(logit_g)
-        loss.backward()
-        opt["gen"].step()
+    # First optimize G
+    opt["gen"].zero_grad()
+    atom_g, bond_g = model["gen"](bs, tau)
+    logit_g = model["dist"](atom_g, bond_g)
+    loss = -F.logsigmoid(logit_g)
+    loss.backward()
+    opt["gen"].step()
 
-        # Then optimize D
-        opt["dis"].zero_grad()
-        atom_g, bond_g = model["gen"](bs, tau)
-        atom_d, bond_d = next(data)
-        logp = model["dist"](atom_g, bond_g)
-
+    # Then optimize D
+    opt["dis"].zero_grad()
+    atom_g, bond_g = model["gen"](bs, tau)
+    atom_d, bond_d = next(data)
+    logit_g = model["dist"](atom_g, bond_g)
+    logit_d = model["dist"](atom_d, bond_d)
+    loss = -F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log()
+    loss.backward()
+    opt["dis"].step()
     return niter + 1
 
 # For GAN, we have no test, just generate the molecule
