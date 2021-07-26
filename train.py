@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for atom_d, bond_d in data:
         # First optimize G
+        niter += 1
         opt["gen"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
         logit_g = model["dist"](atom_g, bond_g)
@@ -25,7 +26,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         loss = -F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log()
         loss.backward()
         opt["dis"].step()
-    return niter + 1
+    return niter
 
 # For GAN, we have no test, just generate the molecule
 def test(data, model):
