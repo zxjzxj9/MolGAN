@@ -10,7 +10,9 @@ from torch.utils.data import DataLoader
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for atom_d, bond_d in data:
         # First optimize G
+        if niter % 1000 == 1: tau *= 0.9
         niter += 1
+        print("In iteration {:6d}".format(niter), end='\r')
         opt["gen"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
         logit_g = model["dist"](atom_g, bond_g)
@@ -51,6 +53,7 @@ if __name__ == "__main__":
     dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=8, pin_memory=True)
 
     niter = 0
+    tau = 1.0
     for epoch in range(conf["nepoch"]):
         print("In epoch %d", epoch+1)
-        niter = train(dl, model, optimizer, niter)
+        niter = train(dl, model, optimizer, niter, conf["batch_size"])
