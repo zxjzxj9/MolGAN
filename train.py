@@ -4,8 +4,11 @@ from model import MolGen, MolDis
 import toml
 import torch
 import torch.nn.functional as F
+from torch.utils.tensorboard import SummaryWriter
 from datareader import QM9BZ2Dataset
 from torch.utils.data import DataLoader
+
+writer = SummaryWriter("./log")
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for atom_d, bond_d in data:
@@ -17,6 +20,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         atom_g, bond_g = model["gen"](bs, tau)
         logit_g = model["dist"](atom_g, bond_g)
         loss = -F.logsigmoid(logit_g)
+        writer.add_scalar("Gen Loss", loss.item())
         loss.backward()
         opt["gen"].step()
 
@@ -26,6 +30,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         logit_g = model["dist"](atom_g, bond_g)
         logit_d = model["dist"](atom_d, bond_d)
         loss = -F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log()
+        writer.add_scalar("Dis Loss", loss.item())
         loss.backward()
         opt["dis"].step()
     return niter
