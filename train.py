@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 writer = SummaryWriter("./log")
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
+    for v in model.values(): v.train()
     for atom_d, bond_d in data:
         # First optimize G
         if niter % 1000 == 1: tau *= 0.9
@@ -62,3 +63,10 @@ if __name__ == "__main__":
     for epoch in range(conf["nepoch"]):
         print("In epoch %d", epoch+1)
         niter = train(dl, model, optimizer, niter, conf["batch_size"])
+
+        with torch.no_grad():
+            gen = model["gen"]
+            gen.eval()
+            atom_g, bond_g = model["gen"](conf["batch_size"], tau)
+
+            # write mols to TF Board
