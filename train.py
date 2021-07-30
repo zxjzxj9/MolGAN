@@ -5,7 +5,7 @@ import toml
 import torch
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-from datareader import QM9BZ2Dataset
+from datareader import QM9BZ2Dataset, graph_to_mol
 from torch.utils.data import DataLoader
 
 writer = SummaryWriter("./log")
@@ -70,3 +70,7 @@ if __name__ == "__main__":
             atom_g, bond_g = model["gen"](conf["batch_size"], tau)
 
             # write mols to TF Board
+            for idx in range(conf["batch_size"]):
+                atom_t = atom_g[idx, ...]
+                bond_t = bond_g[idx, ...]
+                mol_t = graph_to_mol(atom_t, bond_t)
