@@ -7,6 +7,8 @@ import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from datareader import QM9BZ2Dataset, graph_to_mol
 from torch.utils.data import DataLoader
+import numpy as np
+import rdkit
 
 writer = SummaryWriter("./log")
 
@@ -74,3 +76,4 @@ if __name__ == "__main__":
                 atom_t = atom_g[idx, ...]
                 bond_t = bond_g[idx, ...]
                 mol_t = graph_to_mol(atom_t, bond_t)
+                writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
