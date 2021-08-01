@@ -15,9 +15,10 @@ writer = SummaryWriter("./log")
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for v in model.values(): v.train()
     for atom_d, bond_d in data:
-        # First optimize G
-        if niter % 1000 == 1: tau *= 0.9
+        # Do temperature decay
+        if niter % 1000 == 1: tau *= 1.1
         niter += 1
+        # First optimize G
         print("In iteration {:6d}".format(niter), end='\r')
         opt["gen"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
