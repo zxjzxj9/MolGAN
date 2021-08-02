@@ -13,3 +13,4 @@ gen_layer = [128, 256, 512]
 # Training HParams
 batch_size = 32
 learning_rate = 1e-3
+nepoch = 100

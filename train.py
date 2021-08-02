@@ -78,3 +78,4 @@ if __name__ == "__main__":
                 bond_t = bond_g[idx, ...]
                 mol_t = graph_to_mol(atom_t, bond_t)
                 writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
+        print("")
