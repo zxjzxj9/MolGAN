@@ -80,7 +80,7 @@ class QM9BZ2Dataset(Dataset):
     def __init__(self, filename):
         super().__init__()
         self.filename = filename
-        self.fp = tarfile.open(self.filename, "r:bz2")
+        self.fp = tarfile.open(self.filename, "r")
         # filter out .xyz file
         self.file_info = [fn for fn in self.fp if fn.name.endswith(".xyz")]
 
@@ -101,10 +101,10 @@ class QM9BZ2Dataset(Dataset):
         return mol_to_graph(mol)
 
 if __name__ == "__main__":
-    qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar.bz2")
+    qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar")
     # mol: rdkit.Chem.Mol = qmd[10]
     # print(rdkit.Chem.MolToSmiles(mol))
-    atom, bond = qmd[10]
+    atom, bond = qmd[12]
     # print(atom, bond)
     mol = graph_to_mol(atom, bond)
     print(rdkit.Chem.MolToSmiles(mol))
