@@ -89,8 +89,10 @@ class QM9BZ2Dataset(Dataset):
 
     def __getitem__(self, idx):
         info = self.file_info[idx]
+        print(info)
         fin = self.fp.extractfile(info)
         xyz = fin.read().decode("ascii")
+        fin.close()
         # print(xyz)
         atoms, charge, xyz_coordinates = read_qm9_xyz(StringIO(xyz))
         # conn_mat, mol = xyz2AC(atoms, xyz_coordinates, charge)
