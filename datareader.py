@@ -39,6 +39,8 @@ natom = len(atom_map)
 
 def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
+    # Avoid too many atoms
+    atoms = atoms[:max_atom]
     nodes = [atom_map[atom] if atom in atom_map else 0 for atom in atoms]
     nodes = torch.tensor(nodes + [0]*(max_atom - len(nodes)))
     # print(nodes)
@@ -49,6 +51,9 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     for bond in mol.GetBonds():
         start = bond.GetBeginAtomIdx()
         end = bond.GetEndAtomIdx()
+        # Avoid too many atoms
+        if start >= max_atom or end >= max_atom: continue
+
         feat[end, start] = bond_map[bond.GetBondType()]
         feat[start, end] = bond_map[bond.GetBondType()]
     feat = F.one_hot(feat, len(bond_map))
@@ -89,7 +94,7 @@ class QM9BZ2Dataset(Dataset):
 
     def __getitem__(self, idx):
         info = self.file_info[idx]
-        print(info)
+        # print(info)
         fin = self.fp.extractfile(info)
         xyz = fin.read().decode("ascii")
         fin.close()

@@ -3,7 +3,9 @@ MolGAN Implementation with PyTorch and DGL
 
 ## Prerequisites
 PyTorch == 1.8.1
+
 DGL == 0.6
+
 RDKit == 2020.09.1.0
 
 ## Reference Paper

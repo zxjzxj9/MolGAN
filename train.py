@@ -22,7 +22,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         print("In iteration {:6d}".format(niter), end='\r')
         opt["gen"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
-        logit_g = model["dist"](atom_g, bond_g)
+        logit_g = model["dis"](atom_g, bond_g)
         loss = -F.logsigmoid(logit_g)
         writer.add_scalar("Gen Loss", loss.item())
         loss.backward()
