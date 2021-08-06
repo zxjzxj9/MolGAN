@@ -65,7 +65,7 @@ if __name__ == "__main__":
     niter = 0
     tau = 1.0
     for epoch in range(conf["nepoch"]):
-        print("In epoch %d", epoch+1)
+        print("In epoch {:4d}".format(epoch+1))
         niter = train(dl, model, optimizer, niter, conf["batch_size"])
 
         with torch.no_grad():
