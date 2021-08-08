@@ -32,7 +32,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         opt["dis"].zero_grad()
         atom_g, bond_g = model["gen"](bs, tau)
         logit_g = model["dis"](atom_g, bond_g)
-        logit_d = model["dis"](atom_d, bond_d)
+        logit_d = model["dis"](atom_d.float(), bond_d.float())
         loss = torch.mean(-F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log())
         writer.add_scalar("Dis Loss", loss.item())
         loss.backward()
