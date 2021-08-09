@@ -13,6 +13,7 @@ Implementation by Jan H. Jensen, based on the paper
 
 import copy
 import itertools
+import warnings
 
 from rdkit.Chem import rdmolops
 from rdkit.Chem import rdchem
@@ -537,9 +538,21 @@ def read_qm9_xyz(filename, look_for_charge=True):
     else:
         file = filename # if it is StringIO
 
-    na = int(file.readline())
-    # print(na)
-    info = file.readline()
+    na = None
+    try:
+        na = int(file.readline())
+    except:
+        warnings.warn("Invalid number of atoms")
+        info = file.readline()
+        while info:
+            data = info.split()
+            if len(data) == 4:
+                atomic_symbol, x, y, z, atom_charge = data
+                atomic_symbols.append(int_atom(atomic_symbol))
+                xyz_coordinates.append([float(x), float(y), float(z)])
+                charge += float(atom_charge)
+            info = file.readline()
+        return atomic_symbols, charge, xyz_coordinates
 
     for _ in range(na):
         atomic_symbol, x, y, z, atom_charge = file.readline().split()
