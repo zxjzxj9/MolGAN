@@ -554,6 +554,7 @@ def read_qm9_xyz(filename, look_for_charge=True):
             info = file.readline()
         return atomic_symbols, charge, xyz_coordinates
 
+    info = file.readline()
     for _ in range(na):
         atomic_symbol, x, y, z, atom_charge = file.readline().split()
         atomic_symbols.append(int_atom(atomic_symbol))
