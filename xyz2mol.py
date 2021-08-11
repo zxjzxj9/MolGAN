@@ -543,15 +543,15 @@ def read_qm9_xyz(filename, look_for_charge=True):
         na = int(file.readline())
     except:
         warnings.warn("Invalid number of atoms")
-        info = file.readline()
-        while info:
+        for info in file:
             data = info.split()
             if len(data) == 4:
                 atomic_symbol, x, y, z, atom_charge = data
                 atomic_symbols.append(int_atom(atomic_symbol))
                 xyz_coordinates.append([float(x), float(y), float(z)])
                 charge += float(atom_charge)
-            info = file.readline()
+            # info = file.readline()
+        # print(atomic_symbols)
         return atomic_symbols, charge, xyz_coordinates
 
     info = file.readline()
