@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     ds = QM9BZ2Dataset(conf["data_path"])
     # print(ds[0])
-    dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=8, pin_memory=True)
+    dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=0, pin_memory=True)
 
     niter = 0
     tau = 1.0

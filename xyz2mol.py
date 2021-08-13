@@ -543,7 +543,7 @@ def read_qm9_xyz(filename, look_for_charge=True):
         na = int(file.readline())
     except:
         for info in file:
-            data = info.split()
+            data = info.split().replace("*^-", "e")
             if len(data) == 5:
                 atomic_symbol, x, y, z, atom_charge = data
                 atomic_symbols.append(int_atom(atomic_symbol))
@@ -556,7 +556,7 @@ def read_qm9_xyz(filename, look_for_charge=True):
 
     info = file.readline()
     for _ in range(na):
-        atomic_symbol, x, y, z, atom_charge = file.readline().split()
+        atomic_symbol, x, y, z, atom_charge = file.readline().replace("*^-", "e").split()
         atomic_symbols.append(int_atom(atomic_symbol))
         xyz_coordinates.append([float(x), float(y), float(z)])
         charge += float(atom_charge)
@@ -768,9 +768,10 @@ def xyz2mol(atoms, coordinates,
                       use_graph=use_graph)
 
     # Check for stereocenters and chiral centers
+    embed_chiral = False
     if embed_chiral:
-        for new_mol in new_mols:
-            chiral_stereo_check(new_mol)
+       for new_mol in new_mols:
+           chiral_stereo_check(new_mol)
 
     return new_mols
 
