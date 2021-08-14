@@ -501,8 +501,8 @@ def AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_graph=True)
         allow_charged_fragments=allow_charged_fragments)
 
     # If charge is not correct don't return mol
-    if Chem.GetFormalCharge(mol) != charge:
-        return []
+    # if Chem.GetFormalCharge(mol) != charge:
+    #    return []
 
     # BO2mol returns an arbitrary resonance form. Let's make the rest
     mols = rdchem.ResonanceMolSupplier(mol, Chem.UNCONSTRAINED_CATIONS, Chem.UNCONSTRAINED_ANIONS)
@@ -859,6 +859,6 @@ if __name__ == "__main__":
             # Canonical hack
             isomeric_smiles = not args.ignore_chiral
             smiles = Chem.MolToSmiles(mol, isomericSmiles=isomeric_smiles)
-            m = Chem.MolFromSmiles(smiles)
+            m = Chem.MolFromSmiles(smiles, sanitize=False)
             smiles = Chem.MolToSmiles(m, isomericSmiles=isomeric_smiles)
             print(smiles)
