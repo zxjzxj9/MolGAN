@@ -15,3 +15,6 @@ RDKit == 2020.09.1.0
 [QM9](https://figshare.com/collections/Quantum_chemistry_structures_and_properties_of_134_kilo_molecules/978904)
 
 Remember to decompress the bzip2 file to tar file using bunzip2 command instead. 
+The code uses xyz coordinate file as molecule input format
+
+## Training
