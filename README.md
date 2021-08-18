@@ -18,4 +18,7 @@ Remember to decompress the bzip2 file to tar file using bunzip2 command instead.
 The code uses xyz coordinate file as molecule input format
 
 ## Training
-Modify the hyper parameters using hparam.toml file. Just using the command `python train.py` to start training...
+Modify the hyper parameters using hparam.toml file. Just using the command `python train.py` to start training.
+
+## Inference
+Currently, there is no code for inference. (TODO)
