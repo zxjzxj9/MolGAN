@@ -105,6 +105,16 @@ class QM9BZ2Dataset(Dataset):
         # print(rdkit.Chem.MolToSmiles(mol))
         return mol_to_graph(mol)
 
+class QM9SMIDataset(Dataset):
+    def __init__(self, filename):
+        super().__init__()
+
+    def __len__(self):
+        return 0
+
+    def __getitem__(self, idx):
+        return None
+
 if __name__ == "__main__":
     qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar")
     # mol: rdkit.Chem.Mol = qmd[10]
