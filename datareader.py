@@ -4,11 +4,14 @@ import tarfile
 from io import StringIO
 
 # import dgl
+import pandas
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 # import numpy as np
 import rdkit
+from rdkit.Chem import Draw
+import pandas as pd
 
 from xyz2mol import read_xyz_file, read_qm9_xyz, xyz2AC, xyz2mol
 
@@ -105,21 +108,32 @@ class QM9BZ2Dataset(Dataset):
         # print(rdkit.Chem.MolToSmiles(mol))
         return mol_to_graph(mol)
 
-class QM9SMIDataset(Dataset):
+class QM9CSVDataset(Dataset):
     def __init__(self, filename):
         super().__init__()
+        self.csv = pandas.read_csv(filename)
 
     def __len__(self):
-        return 0
+        return len(self.csv)
 
     def __getitem__(self, idx):
-        return None
+        item = self.csv.iloc[idx]
+        sms = item["smiles"]
+        print(sms)
+        mol = rdkit.Chem.MolFromSmiles(sms)
+        mol = rdkit.Chem.AddHs(mol)
+        # print(rdkit.Chem.MolToSmiles(mol))
+        # print(rdkit.Chem.MolToSVG(mol))
+        # Draw.MolToFile(mol, "test.png")
+        return mol
 
 if __name__ == "__main__":
-    qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar")
+    # qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar")
     # mol: rdkit.Chem.Mol = qmd[10]
     # print(rdkit.Chem.MolToSmiles(mol))
-    atom, bond = qmd[12]
+    # atom, bond = qmd[12]
     # print(atom, bond)
-    mol = graph_to_mol(atom, bond)
-    print(rdkit.Chem.MolToSmiles(mol))
+    # mol = graph_to_mol(atom, bond)
+    # print(rdkit.Chem.MolToSmiles(mol))
+    qmd = QM9CSVDataset("./datafolder/qm9.csv")
+    print(qmd[1000])
