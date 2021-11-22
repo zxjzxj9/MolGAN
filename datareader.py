@@ -119,13 +119,13 @@ class QM9CSVDataset(Dataset):
     def __getitem__(self, idx):
         item = self.csv.iloc[idx]
         sms = item["smiles"]
-        print(sms)
+        # print(sms)
         mol = rdkit.Chem.MolFromSmiles(sms)
         mol = rdkit.Chem.AddHs(mol)
         # print(rdkit.Chem.MolToSmiles(mol))
         # print(rdkit.Chem.MolToSVG(mol))
-        # Draw.MolToFile(mol, "test.png")
-        return mol
+        # Draw.MolToFile(mol, "test1.png")
+        return mol_to_graph(mol)
 
 if __name__ == "__main__":
     # qmd = QM9BZ2Dataset("./datafolder/dsgdb9nsd.xyz.tar")
@@ -136,4 +136,6 @@ if __name__ == "__main__":
     # mol = graph_to_mol(atom, bond)
     # print(rdkit.Chem.MolToSmiles(mol))
     qmd = QM9CSVDataset("./datafolder/qm9.csv")
-    print(qmd[1000])
+    atom, bond = qmd[1000]
+    mol = graph_to_mol(atom, bond)
+    Draw.MolToFile(mol, "test2.png")
