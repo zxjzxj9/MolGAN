@@ -9,6 +9,10 @@ import torch.nn.functional as F
 
 # should refer to the following link for details
 # https://github.com/nicola-decao/MolGAN/blob/master/utils/layers.py
+from torch.utils.data import DataLoader
+
+from datareader import QM9CSVDataset
+
 
 class RGCN(nn.Module):
     def __init__(self, ninput, noutput, edge_type):
@@ -114,3 +118,10 @@ if __name__ == "__main__":
     ret = dis(atom, bond)
     print(ret.shape)
     print(ret.sigmoid())
+
+    ds = QM9CSVDataset("./datafolder/qm9.csv")
+    dl = DataLoader(ds, 16, shuffle=True, num_workers=0, pin_memory=True)
+    for atom, bond in dl:
+        print(atom.shape)
+        print(bond.shape)
+        break
