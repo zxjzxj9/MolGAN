@@ -47,7 +47,7 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     nodes = [atom_map[atom] if atom in atom_map else 0 for atom in atoms]
     nodes = torch.tensor(nodes + [0]*(max_atom - len(nodes)))
     # print(nodes)
-    nodes = F.one_hot(nodes, len(atom_map))
+    nodes = F.one_hot(nodes, len(atom_map)).float()
     nodes = nodes[:max_atom]
     atom = nodes
     feat = torch.zeros(max_atom, max_atom, dtype=torch.int64)
@@ -59,7 +59,7 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
 
         feat[end, start] = bond_map[bond.GetBondType()]
         feat[start, end] = bond_map[bond.GetBondType()]
-    feat = F.one_hot(feat, len(bond_map))
+    feat = F.one_hot(feat, len(bond_map)).float()
     bond = feat
     return atom, bond
 

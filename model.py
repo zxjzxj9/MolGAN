@@ -120,8 +120,15 @@ if __name__ == "__main__":
     print(ret.sigmoid())
 
     ds = QM9CSVDataset("./datafolder/qm9.csv")
-    dl = DataLoader(ds, 16, shuffle=True, num_workers=0, pin_memory=True)
-    for atom, bond in dl:
-        print(atom.shape)
-        print(bond.shape)
+    dl = DataLoader(ds, 20, shuffle=True, num_workers=0, pin_memory=True)
+    for atom_d, bond_d in dl:
+        print(atom_d.shape)
+        print(bond_d.shape)
+        atom_g, bond_g = gen()
+        print(atom_g.shape)
+        print(bond_g.shape)
+        ret_g = dis(atom_g, bond_g)
+        ret_d = dis(atom_d, bond_d)
+        print(ret_g)
+        print(ret_d)
         break
