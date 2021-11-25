@@ -1,7 +1,8 @@
 version = "0.1"
 
 # Training data
-data_path = "./datafolder/dsgdb9nsd.xyz.tar"
+# data_path = "./datafolder/dsgdb9nsd.xyz.tar"
+data_path = "./datafolder/qm9.csv"
 
 # Model HParams
 num_atom = 20

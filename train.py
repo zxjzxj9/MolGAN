@@ -58,8 +58,9 @@ if __name__ == "__main__":
         "dis": torch.optim.Adam(params=model["dis"].parameters(), lr=conf["learning_rate"])
     }
 
-    ds = QM9BZ2Dataset(conf["data_path"])
+    # ds = QM9BZ2Dataset(conf["data_path"])
     # print(ds[0])
+    ds = QM9BZ2Dataset(conf["data_path"])
     dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=0, pin_memory=True)
 
     niter = 0
