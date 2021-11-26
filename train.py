@@ -40,8 +40,18 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
     return niter
 
 # For GAN, we have no test, just generate the molecule
-def test(data, model):
-    pass
+def test(model):
+    with torch.no_grad():
+        gen = model["gen"]
+        gen.eval()
+        atom_g, bond_g = model["gen"](conf["batch_size"], tau)
+
+        # write mols to TF Board
+        for idx in range(conf["batch_size"]):
+            atom_t = atom_g[idx, ...]
+            bond_t = bond_g[idx, ...]
+            mol_t = graph_to_mol(atom_t, bond_t)
+            writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
 
 if __name__ == "__main__":
     with open("hparam.toml", "r") as fin:
@@ -68,16 +78,4 @@ if __name__ == "__main__":
     for epoch in range(conf["nepoch"]):
         print("In epoch {:4d}".format(epoch+1))
         niter = train(dl, model, optimizer, niter, conf["batch_size"])
-
-        with torch.no_grad():
-            gen = model["gen"]
-            gen.eval()
-            atom_g, bond_g = model["gen"](conf["batch_size"], tau)
-
-            # write mols to TF Board
-            for idx in range(conf["batch_size"]):
-                atom_t = atom_g[idx, ...]
-                bond_t = bond_g[idx, ...]
-                mol_t = graph_to_mol(atom_t, bond_t)
-                writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
-        print("")
+        test(model)
