@@ -5,7 +5,7 @@ import toml
 import torch
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-from datareader import QM9BZ2Dataset, graph_to_mol
+from datareader import QM9CSVDataset, graph_to_mol
 from torch.utils.data import DataLoader
 import numpy as np
 import rdkit
@@ -68,9 +68,7 @@ if __name__ == "__main__":
         "dis": torch.optim.Adam(params=model["dis"].parameters(), lr=conf["learning_rate"])
     }
 
-    # ds = QM9BZ2Dataset(conf["data_path"])
-    # print(ds[0])
-    ds = QM9BZ2Dataset(conf["data_path"])
+    ds = QM9CSVDataset(conf["data_path"])
     dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=0, pin_memory=True)
 
     niter = 0
