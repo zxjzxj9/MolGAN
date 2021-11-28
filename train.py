@@ -53,6 +53,8 @@ def test(model):
             mol_t = graph_to_mol(atom_t, bond_t)
             writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
 
+     return atom_g, bond_g
+
 if __name__ == "__main__":
     with open("hparam.toml", "r") as fin:
         conf = toml.load(fin)
