@@ -13,7 +13,9 @@ import rdkit
 writer = SummaryWriter("./log")
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
-    for v in model.values(): v.train()
+    for v in model.values():
+        v.train()
+
     for atom_d, bond_d in data:
         # Do temperature decay
         if niter % 1000 == 1: tau *= 1.1
@@ -27,6 +29,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         writer.add_scalar("Gen Loss", loss.item())
         loss.backward()
         opt["gen"].step()
+        print(loss)
 
         # Then optimize D
         opt["dis"].zero_grad()
@@ -52,8 +55,7 @@ def test(model):
             bond_t = bond_g[idx, ...]
             mol_t = graph_to_mol(atom_t, bond_t)
             writer.add_image(f"mol_{idx:%04d}", np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
-
-     return atom_g, bond_g
+    return atom_g, bond_g
 
 if __name__ == "__main__":
     with open("hparam.toml", "r") as fin:
