@@ -29,7 +29,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         writer.add_scalar("Gen Loss", loss.item())
         loss.backward()
         opt["gen"].step()
-        print(loss)
+        print("gen:", loss.item())
 
         # Then optimize D
         opt["dis"].zero_grad()
@@ -39,6 +39,7 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         loss = torch.mean(-F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log())
         writer.add_scalar("Dis Loss", loss.item())
         loss.backward()
+        print("dis:", loss.item())
         opt["dis"].step()
     return niter
 
