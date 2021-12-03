@@ -139,3 +139,5 @@ if __name__ == "__main__":
     atom, bond = qmd[1000]
     mol = graph_to_mol(atom, bond)
     Draw.MolToFile(mol, "test2.png")
+    img = Draw.MolToImage(mol)
+    print(img)
