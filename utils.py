@@ -10,3 +10,7 @@ def mol_to_image(writer: SummaryWriter, mols: Sequence[rdkit.Chem.Mol], tag, nit
     imgs = [Draw.MolToImage(mol) for mol in mols]
     img_tensor = np.stack([np.array(imgs)], axis=0)
     writer.add_image(img_tensor=img_tensor, tag=tag, global_step=niter)
+    return img_tensor
+
+if __name__ == "__main__":
+    pass
