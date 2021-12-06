@@ -47,11 +47,11 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
     return niter
 
 # For GAN, we have no test, just generate the molecule
-def test(model, niter):
+def test(model, niter, bs=32):
     gen = model["gen"]
     gen.eval()
     with torch.no_grad():
-        atom_g, bond_g = model["gen"](conf["batch_size"], tau)
+        atom_g, bond_g = model["gen"](bs, tau)
 
         # write mols to TF Board
         imgs = []
