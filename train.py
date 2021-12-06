@@ -48,9 +48,9 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
 
 # For GAN, we have no test, just generate the molecule
 def test(model, niter):
+    gen = model["gen"]
+    gen.eval()
     with torch.no_grad():
-        gen = model["gen"]
-        gen.eval()
         atom_g, bond_g = model["gen"](conf["batch_size"], tau)
 
         # write mols to TF Board
@@ -87,5 +87,7 @@ if __name__ == "__main__":
     tau = 1.0
     for epoch in range(conf["nepoch"]):
         print("In epoch {:4d}".format(epoch+1))
+        print("Training Stage...")
         niter = train(dl, model, optimizer, niter, conf["batch_size"])
+        print("Testing Stage...")
         test(model, epoch)
