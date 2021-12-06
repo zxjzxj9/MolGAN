@@ -81,7 +81,7 @@ if __name__ == "__main__":
     }
 
     ds = QM9CSVDataset(conf["data_path"])
-    dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=0, pin_memory=True)
+    dl = DataLoader(ds, conf["batch_size"], shuffle=True, num_workers=0, pin_memory=True, drop_last=True)
 
     niter = 0
     tau = 1.0
