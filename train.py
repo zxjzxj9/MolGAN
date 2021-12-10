@@ -89,6 +89,8 @@ if __name__ == "__main__":
         print("In epoch {:4d}".format(epoch+1))
         print("Training Stage...")
         niter = train(dl, model, optimizer, niter, conf["batch_size"])
+        print("Saving model checkpoints...")
         torch.save(f"model_{epoch:04d}.pt", {k: v.state_dict() for k, v in model.items()})
+        print("Done.")
         print("Testing Stage...")
         test(model, epoch)
