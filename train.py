@@ -75,6 +75,10 @@ if __name__ == "__main__":
         "dis": MolDis(conf["num_atom"], conf["num_atom_type"], conf["num_bond_type"])
     }
 
+    if conf["ckpt_path"]:
+        print(f"Load ckpt file from: {conf['ckpt_path']}...")
+        # Todo: Add ckpt file loading code
+
     optimizer = {
         "gen": torch.optim.Adam(params=model["gen"].parameters(), lr=conf["learning_rate"]),
         "dis": torch.optim.Adam(params=model["dis"].parameters(), lr=conf["learning_rate"])
