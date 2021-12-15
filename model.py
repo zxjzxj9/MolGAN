@@ -84,10 +84,11 @@ class MolGen(nn.Module):
             bond = F.gumbel_softmax(bond, tau=tau, hard=True)
             atom = atom.view(-1, self.natom, self.num_atom_typ)
             bond = bond.view(-1, self.natom, self.natom, self.num_bond_typ)
-
             return atom, bond
         else:
-            pass
+            atom = atom.view(-1, self.natom, self.num_atom_typ).softmax(-1)
+            bond = bond.view(-1, self.natom, self.natom, self.num_bond_typ).softmax(-1)
+            return atom, bond
 
 class MolDis(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ):
