@@ -12,6 +12,7 @@ import rdkit
 
 writer = SummaryWriter("./log")
 
+
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for v in model.values():
         v.train()
@@ -46,13 +47,13 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         opt["dis"].step()
     return niter
 
+
 # For GAN, we have no test, just generate the molecule
 def test(model, niter, bs=32):
     gen = model["gen"]
     gen.eval()
     with torch.no_grad():
         atom_g, bond_g = model["gen"](bs, tau)
-
         # write mols to TF Board
         imgs = []
         for idx in range(conf["batch_size"]):
@@ -64,6 +65,7 @@ def test(model, niter, bs=32):
         writer.add_image(img_tensor=img_tensor, tag=f"mol_{idx:%04d}", global_step=niter)
 
     return atom_g, bond_g
+
 
 if __name__ == "__main__":
     with open("hparam.toml", "r") as fin:
@@ -92,13 +94,14 @@ if __name__ == "__main__":
     niter = 0
     tau = 1.0
     for epoch in range(conf["nepoch"]):
-        print("In epoch {:4d}".format(epoch+1))
+        print("In epoch {:4d}".format(epoch + 1))
         print("Training Stage...")
-        niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
+        # niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
         tau *= 0.9
         print("")
         print("Saving model checkpoints...")
-        torch.save({k: v.state_dict() for k, v in model.items()}, f"model_{epoch:04d}.pt")
+        # torch.save({k: v.state_dict() for k, v in model.items()}, f"model_{epoch:04d}.pt")
         print("Done.")
         print("Testing Stage...")
-        test(model, epoch)
+        print(model['gen'])
+        test(model, epoch, bs=32)
