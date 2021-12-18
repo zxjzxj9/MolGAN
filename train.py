@@ -56,7 +56,7 @@ def test(model, niter, bs=32):
         atom_g, bond_g = model["gen"](bs, tau)
         # write mols to TF Board
         imgs = []
-        for idx in range(conf["batch_size"]):
+        for idx in range(bs):
             atom_t = atom_g[idx, ...]
             bond_t = bond_g[idx, ...]
             mol_t = graph_to_mol(atom_t, bond_t)
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     for epoch in range(conf["nepoch"]):
         print("In epoch {:4d}".format(epoch + 1))
         print("Training Stage...")
-        niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
+        # niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
         tau *= 0.9
         print("")
         print("Saving model checkpoints...")
@@ -105,3 +105,4 @@ if __name__ == "__main__":
         print("Testing Stage...")
         print(model['gen'])
         test(model, epoch, bs=32)
+        break

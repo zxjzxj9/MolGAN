@@ -20,7 +20,7 @@ bond_map = {
     rdkit.Chem.BondType.SINGLE: 1,
     rdkit.Chem.BondType.DOUBLE: 2,
     rdkit.Chem.BondType.TRIPLE: 3,
-    rdkit.Chem.BondType.AROMATIC: 4
+    # rdkit.Chem.BondType.AROMATIC: 4
 }
 bondtyp_map = {v:k for k, v in bond_map.items()}
 
@@ -69,6 +69,8 @@ def graph_to_mol(atom, bond):
     mol = rdkit.Chem.RWMol()
     atom = atom.argmax(-1)
     bond = bond.argmax(-1)
+    print(atom)
+    print(bond)
     valid_atoms = {} # graph -> mol
     cnt = 0
     for idx, val in enumerate(list(atom)):
@@ -76,12 +78,14 @@ def graph_to_mol(atom, bond):
             valid_atoms[idx] = cnt
             cnt += 1
             mol.AddAtom(rdkit.Chem.Atom(serial_map[val.item()]))
-    vk = valid_atoms.keys()
+    vk = list(valid_atoms.keys())
     for i in range(len(vk)):
         for j in range(0, i):
-            if bond[i][j] > 0:
-                mol.AddBond(valid_atoms[i], valid_atoms[j],
-                            bondtyp_map[bond[i][j].item()])
+            if bond[vk[i]][vk[j]] > 0:
+                print(valid_atoms)
+                print(i, j)
+                mol.AddBond(valid_atoms[vk[i]], valid_atoms[vk[j]],
+                            bondtyp_map[bond[vk[i]][vk[j]].item()])
     return mol
 
 class QM9BZ2Dataset(Dataset):
@@ -137,6 +141,7 @@ if __name__ == "__main__":
     # print(rdkit.Chem.MolToSmiles(mol))
     qmd = QM9CSVDataset("./datafolder/qm9.csv")
     atom, bond = qmd[1000]
+    print(atom, bond)
     mol = graph_to_mol(atom, bond)
     Draw.MolToFile(mol, "test2.png")
     img = Draw.MolToImage(mol)
