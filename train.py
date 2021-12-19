@@ -62,7 +62,7 @@ def test(model, niter, bs=32):
             mol_t = graph_to_mol(atom_t, bond_t)
             imgs.append(rdkit.Chem.Draw.MolToImage(mol_t))
         img_tensor = np.stack([np.array(imgs)], axis=0)
-        writer.add_image(img_tensor=img_tensor, tag=f"mol_{idx:%04d}", global_step=niter)
+        writer.add_image(img_tensor=img_tensor, tag="molecule", global_step=niter)
 
     return atom_g, bond_g
 
