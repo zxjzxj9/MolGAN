@@ -60,9 +60,9 @@ def test(model, niter, bs=32):
             atom_t = atom_g[idx, ...]
             bond_t = bond_g[idx, ...]
             mol_t = graph_to_mol(atom_t, bond_t)
-            imgs.append(rdkit.Chem.Draw.MolToImage(mol_t))
-        img_tensor = np.stack([np.array(imgs)], axis=0)
-        writer.add_image(img_tensor=img_tensor, tag="molecule", global_step=niter)
+            imgs.append(np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
+        img_tensor = np.stack(imgs, axis=0)
+        writer.add_images(img_tensor=img_tensor, tag="molecule", global_step=niter, dataformats="NHWC")
 
     return atom_g, bond_g
 
