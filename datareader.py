@@ -69,8 +69,8 @@ def graph_to_mol(atom, bond):
     mol = rdkit.Chem.RWMol()
     atom = atom.argmax(-1)
     bond = bond.argmax(-1)
-    print(atom)
-    print(bond)
+    # print(atom)
+    # print(bond)
     valid_atoms = {} # graph -> mol
     cnt = 0
     for idx, val in enumerate(list(atom)):
@@ -82,8 +82,8 @@ def graph_to_mol(atom, bond):
     for i in range(len(vk)):
         for j in range(0, i):
             if bond[vk[i]][vk[j]] > 0:
-                print(valid_atoms)
-                print(i, j)
+                # print(valid_atoms)
+                # print(i, j)
                 mol.AddBond(valid_atoms[vk[i]], valid_atoms[vk[j]],
                             bondtyp_map[bond[vk[i]][vk[j]].item()])
     return mol

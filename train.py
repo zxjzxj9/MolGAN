@@ -96,7 +96,7 @@ if __name__ == "__main__":
     for epoch in range(conf["nepoch"]):
         print("In epoch {:4d}".format(epoch + 1))
         print("Training Stage...")
-        # niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
+        niter = train(dl, model, optimizer, niter, conf["batch_size"], tau)
         tau *= 0.9
         print("")
         print("Saving model checkpoints...")
