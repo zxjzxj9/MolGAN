@@ -11,7 +11,7 @@ import numpy as np
 import rdkit
 
 writer = SummaryWriter("./log")
-
+use_cuda = False
 
 def train(data, model, opt, niter, bs=32, tau=1.0):
     for v in model.values():
@@ -70,6 +70,8 @@ def test(model, niter, bs=32):
 if __name__ == "__main__":
     with open("hparam.toml", "r") as fin:
         conf = toml.load(fin)
+
+    use_cuda = conf["use_cuda"]
 
     model = {
         "gen": MolGen(conf["num_atom"], conf["num_atom_type"], conf["num_bond_type"],
