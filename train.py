@@ -107,4 +107,3 @@ if __name__ == "__main__":
         print("Testing Stage...")
         print(model['gen'])
         test(model, epoch, bs=32)
-        break
