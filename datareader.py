@@ -51,6 +51,7 @@ def mol_to_graph(mol: rdkit.Chem.Mol, max_atom = 16):
     nodes = nodes[:max_atom]
     atom = nodes
     feat = torch.zeros(max_atom, max_atom, dtype=torch.int64)
+    rdkit.Chem.Kekulize(mol)
     for bond in mol.GetBonds():
         start = bond.GetBeginAtomIdx()
         end = bond.GetEndAtomIdx()
