@@ -18,6 +18,11 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         v.train()
 
     for atom_d, bond_d in data:
+        # Add cuda data conversion code
+        if use_cuda:
+            atom_d = atom_d.cuda()
+            bond_d = bond_d.cuda()
+
         # Do temperature decay
         if niter % 1000 == 1: tau *= 1.1
         niter += 1
@@ -78,6 +83,9 @@ if __name__ == "__main__":
                       conf["num_hidden"], conf["gen_layer"]),
         "dis": MolDis(conf["num_atom"], conf["num_atom_type"], conf["num_bond_type"])
     }
+
+    if use_cuda:
+        for v in model.values(): v.cuda()
 
     if conf["ckpt_path"] != "":
         print(f"Load ckpt file from: {conf['ckpt_path']}...")
