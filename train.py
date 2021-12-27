@@ -62,8 +62,8 @@ def test(model, niter, bs=32):
         # write mols to TF Board
         imgs = []
         for idx in range(bs):
-            atom_t = atom_g[idx, ...]
-            bond_t = bond_g[idx, ...]
+            atom_t = atom_g[idx, ...].cpu()
+            bond_t = bond_g[idx, ...].cpu()
             mol_t = graph_to_mol(atom_t, bond_t)
             imgs.append(np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
         img_tensor = np.stack(imgs, axis=0)
