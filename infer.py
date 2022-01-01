@@ -8,7 +8,8 @@ from model import MolGen, MolDis
 
 args = argparse.ArgumentParser("MolGAN inference script")
 args.add_argument("-c", "--conf", type=str, default="hparam.toml", help="Config file location")
-args.add_argument("-m", "--model", type=str, default="model.pt", hep="Checkpoint model file")
+args.add_argument("-m", "--model", type=str, default="model.pt", help="Checkpoint model file")
+args.add_argument("-b", "--bs", type=int, default=16, help="Inference batch size")
 opt = args.parse_args()
 
 if __name__ == "__main__":
@@ -25,4 +26,6 @@ if __name__ == "__main__":
     sd = torch.load(args.model)
     model["gen"].load_state_dict(sd["gen"])
     model["dis"].load_state_dict(sd["dis"])
+
+
 
