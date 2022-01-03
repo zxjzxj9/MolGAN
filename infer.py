@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 
 import argparse
+
+import rdkit.Chem
 import toml
 import torch
 
+from datareader import graph_to_mol
 from model import MolGen, MolDis
 
 args = argparse.ArgumentParser("MolGAN inference script")
@@ -33,4 +36,9 @@ if __name__ == "__main__":
 
     atom_g, bond_g = model["gen"](opt.bs, opt.tau)
 
+    for idx in range(opt.bs):
+        atom_t = atom_g[idx, ...].cpu()
+        bond_t = bond_g[idx, ...].cpu()
+        mol_t = graph_to_mol(atom_t, bond_t)
+        print(rdkit.Chem.MolToSmiles(mol_t))
 
