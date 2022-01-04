@@ -21,4 +21,6 @@ The code uses xyz coordinate file as molecule input format
 Modify the hyper parameters using hparam.toml file. Just using the command `python train.py` to start training.
 
 ## Inference
-Currently, there is no code for inference. (TODO)
+The inference code is in `inferenc.py`, we can launch an inference running by the following command,
+
+```python infer.py -c hparam.toml -b 16 -m model.pt```
