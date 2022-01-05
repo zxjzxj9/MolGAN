@@ -31,7 +31,7 @@ if __name__ == "__main__":
     model["gen"].load_state_dict(sd["gen"])
     model["dis"].load_state_dict(sd["dis"])
 
-    for v in model:
+    for v in model.values():
         v.eval()
 
     atom_g, bond_g = model["gen"](opt.bs, opt.tau)
