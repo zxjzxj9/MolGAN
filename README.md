@@ -21,6 +21,6 @@ The code uses xyz coordinate file as molecule input format
 Modify the hyper parameters using hparam.toml file. Just using the command `python train.py` to start training.
 
 ## Inference
-The inference code is in `inferenc.py`, we can launch an inference running by the following command,
-
-```python infer.py -c hparam.toml -b 16 -m model.pt```
+The inference code is in `inferenc.py`, we can launch an inference running by the following command, 
+this command will print out *batch_size* size of SMILES strings of the generated molecules.
+```python infer.py -c hparam.toml -b [batch_size] -m model.pt```
