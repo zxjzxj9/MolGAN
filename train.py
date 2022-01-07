@@ -66,6 +66,7 @@ def test(model, niter, bs=32):
             bond_t = bond_g[idx, ...].cpu()
             mol_t = graph_to_mol(atom_t, bond_t)
             imgs.append(np.array(rdkit.Chem.Draw.MolToImage(mol_t)))
+            writer.add_text(text_string=rdkit.Chem.MolFromSmiles(mol_t), tag=f"molecule_{idx:04d}", global_step=niter)
         img_tensor = np.stack(imgs, axis=0)
         writer.add_images(img_tensor=img_tensor, tag="molecule", global_step=niter, dataformats="NHWC")
 
