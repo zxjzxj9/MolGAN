@@ -73,6 +73,8 @@ class MolGen(nn.Module):
     def forward(self, bs=32, tau=1.0):
 
         x = torch.randn(bs, self.nhidden)
+        # Move device to fit the tensor on the same device
+        x = x.to(self.fc_atom.weight.device)
         for mod in self.mod:
             x = mod(x)
         atom = self.fc_atom(x)
