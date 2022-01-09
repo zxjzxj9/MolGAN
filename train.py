@@ -54,12 +54,12 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
 
 
 # For GAN, we have no test, just generate the molecule
-def test(model, niter, bs=32):
+def test(model, niter, tau, bs=32):
     gen = model["gen"]
     gen.eval()
     with torch.no_grad():
         atom_g, bond_g = model["gen"](bs, tau)
-        # write mols to TF Board
+        # write mol smiles and images to TF Board
         imgs = []
         for idx in range(bs):
             atom_t = atom_g[idx, ...].cpu()
@@ -115,4 +115,4 @@ if __name__ == "__main__":
         print("Done.")
         print("Testing Stage...")
         print(model['gen'])
-        test(model, epoch, bs=32)
+        test(model, epoch, tau, bs=32)
