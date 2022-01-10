@@ -31,10 +31,10 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         atom_g, bond_g = model["gen"](bs, tau)
         logit_g = model["dis"](atom_g, bond_g)
         loss = -torch.mean(F.logsigmoid(logit_g))
-        writer.add_scalar("Gen Loss", loss.item())
         loss.backward()
         opt["gen"].step()
         gen_loss = loss.item()
+        writer.add_scalar("Gen Loss", gen_loss)
         # print("gen:", loss.item())
 
         # Then optimize D
@@ -45,9 +45,9 @@ def train(data, model, opt, niter, bs=32, tau=1.0):
         # print(logit_g, logit_d)
         loss = -torch.mean(F.logsigmoid(logit_d) + (1 - logit_g.sigmoid()).log())
         dis_loss = loss.item()
-        writer.add_scalar("Dis Loss", loss.item())
         loss.backward()
         # print("dis:", loss.item())
+        writer.add_scalar("Dis Loss", dis_loss)
         print("In iteration {:6d}, Gen Loss {:12.6f}, Dis Loss {:12.6f}".format(niter, gen_loss, dis_loss), end='\r')
         opt["dis"].step()
     return niter
