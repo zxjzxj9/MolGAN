@@ -1,10 +1,8 @@
 # MolGAN
-MolGAN Implementation with PyTorch and DGL
+MolGAN Implementation with PyTorch, using RDKit as molecule processing tool.
 
 ## Prerequisites
 PyTorch == 1.8.1
-
-DGL == 0.6
 
 RDKit == 2020.09.1.0
 
