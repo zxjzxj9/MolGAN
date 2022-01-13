@@ -111,7 +111,7 @@ if __name__ == "__main__":
         tau *= 0.9
         print("")
         print("Saving model checkpoints...")
-        torch.save({k: v.state_dict() for k, v in model.items()}, f"model_{epoch:04d}.pt")
+        torch.save({k: v.state_dict() for k, v in model.items()}, f"model_{epoch+1:04d}.pt")
         print("Done.")
         print("Testing Stage...")
         # print(model['gen'])
