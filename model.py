@@ -56,7 +56,7 @@ class GraphAggr(nn.Module):
 class MolGen(nn.Module):
     def __init__(self, natom, num_atom_typ, num_bond_typ, nhidden, nfeats):
         super().__init__()
-        # self.atom_embedding = nn.Embedding(num_atom_typ, nhidden)
+
         self.mod = nn.ModuleList([])
         self.nhidden = nhidden
         prev = nhidden
@@ -107,9 +107,7 @@ class MolDis(nn.Module):
     def forward(self, node, edge):
         node = node[:, :, 1:] # remove none atoms
         x = self.layer1(node, edge)
-        # x = self.agg1(x)
         x = self.layer2(node, edge, x)
-        # x = self.agg2(x)
         x = self.agg3(x).squeeze()
         return x
 
