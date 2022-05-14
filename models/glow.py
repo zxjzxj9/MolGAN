@@ -59,3 +59,10 @@ class ActNorm2d(nn.Module):
             x, logdet = self._scale(x, logdet, reverse)
 
         return x, logdet
+
+class FlowStep(nn.Module):
+    def __int__(self):
+        super().__init__()
+
+    def forward(self, x, logdet=None, reverse=False):
+        pass
