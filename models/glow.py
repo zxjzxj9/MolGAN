@@ -4,6 +4,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def squeeze2d(x, factor):
+    n, c, h, w = x.shape
+    x = x.view(n, c, h//factor, factor, w//factor, factor)
+    x = x.permute(0, 1, 3, 5, 2, 4).contiguous()
+    x = x.view(n, c*factor*factor, h//factor, w//factor)
+    return x
+
+def unsqueeze(x, factor):
+    n, c, h, w = x.shape
+    x = x.view(n, c//factor**2, factor, factor, h, w)
+    x = x.permute(0, 1, 4, 2, 5, 3).contiguous()
+    x = x.view(n, c//factor**2, h*factor, w*factor)
+    return x
+
 class ActNorm2d(nn.Module):
 
     def __int__(self, num_features, scale=1.0):
