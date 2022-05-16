@@ -80,3 +80,13 @@ class FlowStep(nn.Module):
 
     def forward(self, x, logdet=None, reverse=False):
         pass
+
+
+if __name__ == "__main__":
+    a = torch.randn(3, 8, 32, 32)
+    print(a.shape)
+    x = squeeze2d(a, 2)
+    print(x.shape)
+    y = unsqueeze(x, 2)
+    print(y.shape)
+    print((a-y).norm())
