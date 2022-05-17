@@ -11,7 +11,7 @@ def squeeze2d(x, factor):
     x = x.view(n, c*factor*factor, h//factor, w//factor)
     return x
 
-def unsqueeze(x, factor):
+def unsqueeze2d(x, factor):
     n, c, h, w = x.shape
     x = x.view(n, c//factor**2, factor, factor, h, w)
     x = x.permute(0, 1, 4, 2, 5, 3).contiguous()
@@ -74,6 +74,19 @@ class ActNorm2d(nn.Module):
 
         return x, logdet
 
+class Squeeze(nn.Module):
+    def __init__(self, factor):
+        super().__init__()
+        self.factor = factor
+
+    def forward(self, input, logdet=None, reverse=False):
+        if reverse:
+            output = unsqueeze2d(input, self.factor)
+        else:
+            output = squeeze2d(input, self.factor)
+
+        return output, logdet
+
 class FlowStep(nn.Module):
     def __int__(self):
         super().__init__()
@@ -87,6 +100,6 @@ if __name__ == "__main__":
     print(a.shape)
     x = squeeze2d(a, 2)
     print(x.shape)
-    y = unsqueeze(x, 2)
+    y = unsqueeze2d(x, 2)
     print(y.shape)
     print((a-y).norm())
