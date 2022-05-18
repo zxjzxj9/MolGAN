@@ -87,6 +87,77 @@ class Squeeze(nn.Module):
 
         return output, logdet
 
+class InvertibleConv1x1(nn.Module):
+    def __int__(self, nchan, lu=False):
+        super().__int__()
+
+        w_shape = [nchan, nchan]
+        w_init = torch.qr(torch.randn(*w_shape))[0]
+
+        if not lu:
+            self.weight = nn.Parameter(torch.Tensor(w_init))
+        else:
+            p, l, u = torch.lu_unpack(*torch.lu(w_init))
+            s = torch.diag(u)
+            sign_s = torch.sign(s)
+            log_s = torch.log(torch.abs(s))
+            u = torch.triu(u, 1)
+            l_mask = torch.tril(torch.ones(w_shape), -1)
+            eye = torch.eye(*w_shape)
+            self.register_buffer("p", p)
+            self.register_buffer("sign_s", sign_s)
+            self.lower = nn.Parameter(l)
+            self.log_s = nn.Parameter(log_s)
+            self.upper = nn.Parameter(u)
+            self.l_mask = l_mask
+            self.eye = eye
+
+        self.w_shape = w_shape
+        self.lu = lu
+
+    def get_weight(self, x, reverse=False):
+        n, c, h, w = x.shape
+
+        if not self.lu:
+            dlogdet = torch.slogdet(self.weight)[1] * h * w
+            if reverse:
+                weight = torch.inverse(self.weight)
+            else:
+                weight = self.weight
+        else:
+            self.l_mask = self.l_mask.to(input.device)
+            self.eye = self.eye.to(input.device)
+
+            lower = self.lower * self.l_mask + self.eye
+
+            u = self.upper * self.l_mask.transpose(0, 1).contiguous()
+            u += torch.diag(self.sign_s * torch.exp(self.log_s))
+
+            dlogdet = torch.sum(self.log_s) * h * w
+
+            if reverse:
+                u_inv = torch.inverse(u)
+                l_inv = torch.inverse(lower)
+                p_inv = torch.inverse(self.p)
+                weight = torch.matmul(u_inv, torch.matmul(l_inv, p_inv))
+            else:
+                weight = torch.matmul(self.p, torch.matmul(lower, u))
+
+        return weight.view(self.w_shape[0], self.w_shape[1], 1, 1), dlogdet
+
+    def forward(self, x, logdet=None, reverse=False):
+        weight, dlogdet = self.get_weight(input, reverse)
+        if not reverse:
+            z = F.conv2d(input, weight)
+            if logdet is not None:
+                logdet = logdet + dlogdet
+            return z, logdet
+        else:
+            z = F.conv2d(input, weight)
+            if logdet is not None:
+                logdet = logdet - dlogdet
+            return z, logdet
+
 class FlowStep(nn.Module):
     def __int__(self):
         super().__init__()
