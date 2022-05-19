@@ -158,6 +158,28 @@ class InvertibleConv1x1(nn.Module):
                 logdet = logdet - dlogdet
             return z, logdet
 
+class Split2d(nn.Module):
+    def __init__(self, num_channels):
+        super().__init__()
+        self.conv = nn.Conv2d(num_channels // 2, num_channels, 3, padding=1)
+
+#     def split2d_prior(self, z):
+#         h = self.conv(z)
+#         return split_feature(h, "cross")
+#
+#     def forward(self, input, logdet=0.0, reverse=False, temperature=None):
+#         if reverse:
+#             z1 = input
+#             mean, logs = self.split2d_prior(z1)
+#             z2 = gaussian_sample(mean, logs, temperature)
+#             z = torch.cat((z1, z2), dim=1)
+#             return z, logdet
+#         else:
+#             z1, z2 = split_feature(input, "split")
+#             mean, logs = self.split2d_prior(z1)
+#             logdet = gaussian_likelihood(mean, logs, z2) + logdet
+#             return z1, logdet
+
 class FlowStep(nn.Module):
     def __int__(self):
         super().__init__()
