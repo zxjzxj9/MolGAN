@@ -4,19 +4,56 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import math
+
+log2pi = math.log(2 * math.pi)
+
+
+def split_feature(tensor, type="split"):
+    """
+    type = ["split", "cross"]
+    """
+    C = tensor.size(1)
+    if type == "split":
+        return tensor[:, : C // 2, ...], tensor[:, C // 2 :, ...]
+    elif type == "cross":
+        return tensor[:, 0::2, ...], tensor[:, 1::2, ...]
+
+
 def squeeze2d(x, factor):
     n, c, h, w = x.shape
-    x = x.view(n, c, h//factor, factor, w//factor, factor)
+    x = x.view(n, c, h // factor, factor, w // factor, factor)
     x = x.permute(0, 1, 3, 5, 2, 4).contiguous()
-    x = x.view(n, c*factor*factor, h//factor, w//factor)
+    x = x.view(n, c * factor * factor, h // factor, w // factor)
     return x
+
 
 def unsqueeze2d(x, factor):
     n, c, h, w = x.shape
-    x = x.view(n, c//factor**2, factor, factor, h, w)
+    x = x.view(n, c // factor ** 2, factor, factor, h, w)
     x = x.permute(0, 1, 4, 2, 5, 3).contiguous()
-    x = x.view(n, c//factor**2, h*factor, w*factor)
+    x = x.view(n, c // factor ** 2, h * factor, w * factor)
     return x
+
+
+def gaussian_p(mean, logs, x):
+    """
+    lnL = -1/2 * { ln|Var| + ((X - Mu)^T)(Var^-1)(X - Mu) + kln(2*PI) }
+            k = 1 (Independent)
+            Var = logs ** 2
+    """
+    return -0.5 * (logs * 2.0 + ((x - mean) ** 2) / torch.exp(logs * 2.0) + log2pi)
+
+
+def gaussian_likelihood(mean, logs, x):
+    p = gaussian_p(mean, logs, x)
+    return torch.sum(p, dim=[1, 2, 3])
+
+
+def gaussian_sample(mean, logs, temperature=1):
+    z = torch.normal(mean, torch.exp(logs) * temperature)
+    return z
+
 
 class ActNorm2d(nn.Module):
 
@@ -74,6 +111,7 @@ class ActNorm2d(nn.Module):
 
         return x, logdet
 
+
 class Squeeze(nn.Module):
     def __init__(self, factor):
         super().__init__()
@@ -86,6 +124,7 @@ class Squeeze(nn.Module):
             output = squeeze2d(input, self.factor)
 
         return output, logdet
+
 
 class InvertibleConv1x1(nn.Module):
     def __int__(self, nchan, lu=False):
@@ -158,27 +197,29 @@ class InvertibleConv1x1(nn.Module):
                 logdet = logdet - dlogdet
             return z, logdet
 
+
 class Split2d(nn.Module):
     def __init__(self, num_channels):
         super().__init__()
         self.conv = nn.Conv2d(num_channels // 2, num_channels, 3, padding=1)
 
-#     def split2d_prior(self, z):
-#         h = self.conv(z)
-#         return split_feature(h, "cross")
-#
-#     def forward(self, input, logdet=0.0, reverse=False, temperature=None):
-#         if reverse:
-#             z1 = input
-#             mean, logs = self.split2d_prior(z1)
-#             z2 = gaussian_sample(mean, logs, temperature)
-#             z = torch.cat((z1, z2), dim=1)
-#             return z, logdet
-#         else:
-#             z1, z2 = split_feature(input, "split")
-#             mean, logs = self.split2d_prior(z1)
-#             logdet = gaussian_likelihood(mean, logs, z2) + logdet
-#             return z1, logdet
+
+    def split2d_prior(self, z):
+        h = self.conv(z)
+        return split_feature(h, "cross")
+
+    def forward(self, input, logdet=0.0, reverse=False, temperature=None):
+        if reverse:
+            z1 = input
+            mean, logs = self.split2d_prior(z1)
+            z2 = gaussian_sample(mean, logs, temperature)
+            z = torch.cat((z1, z2), dim=1)
+            return z, logdet
+        else:
+            z1, z2 = split_feature(input, "split")
+            mean, logs = self.split2d_prior(z1)
+            logdet = gaussian_likelihood(mean, logs, z2) + logdet
+            return z1, logdet
 
 class FlowStep(nn.Module):
     def __int__(self):
@@ -195,4 +236,4 @@ if __name__ == "__main__":
     print(x.shape)
     y = unsqueeze2d(x, 2)
     print(y.shape)
-    print((a-y).norm())
+    print((a - y).norm())
