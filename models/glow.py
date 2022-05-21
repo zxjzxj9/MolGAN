@@ -221,9 +221,18 @@ class Split2d(nn.Module):
             logdet = gaussian_likelihood(mean, logs, z2) + logdet
             return z1, logdet
 
+
 class FlowStep(nn.Module):
-    def __int__(self):
+    def __int__(self, c_in, c_hid, act_s, flow_perm, flow_coup, lu):
         super().__init__()
+        self.actnorm = ActNorm2d(c_in, act_s)
+
+        if flow_perm == "inv_conv":
+            self.perm = InvertibleConv1x1(c_in, lu)
+        elif flow_perm == "shuffle":
+            pass
+        else:
+            pass
 
     def forward(self, x, logdet=None, reverse=False):
         pass
