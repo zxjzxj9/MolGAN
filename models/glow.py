@@ -8,6 +8,15 @@ import math
 
 log2pi = math.log(2 * math.pi)
 
+def get_block(in_channels, out_channels, hidden_channels):
+    block = nn.Sequential(
+        nn.Conv2d(in_channels, hidden_channels, 3, padding=1),
+        nn.ReLU(inplace=False),
+        nn.Conv2d(hidden_channels, hidden_channels, 1),
+        nn.ReLU(inplace=False),
+        nn.Conv2d(hidden_channels, out_channels),
+    )
+    return block
 
 def split_feature(tensor, type="split"):
     """
@@ -230,9 +239,17 @@ class FlowStep(nn.Module):
         if flow_perm == "inv_conv":
             self.perm = InvertibleConv1x1(c_in, lu)
         elif flow_perm == "shuffle":
+            # self.perm = Permute2d(c_in, shuffle=True)
             pass
         else:
+            # self.perm = Permute2d(c_in, shuffle=True)
             pass
+
+        if flow_coup == "additive":
+            self.block = get_block(c_in // 2, c_in // 2, c_hid)
+        elif flow_coup == "affine":
+            self.block = get_block(c_in // 2, c_in, c_hid)
+
 
     def forward(self, x, logdet=None, reverse=False):
         pass
