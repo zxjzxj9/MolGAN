@@ -250,9 +250,18 @@ class FlowStep(nn.Module):
         elif flow_coup == "affine":
             self.block = get_block(c_in // 2, c_in, c_hid)
 
-
     def forward(self, x, logdet=None, reverse=False):
+        if not reverse:
+            return self.normal_flow(x, logdet)
+        else:
+            return self.reverse_flow(x, logdet)
+
+    def normal_flow(self, x, logdet):
         pass
+
+    def reverse_flow(self, x, logdet):
+        pass
+
 
 
 if __name__ == "__main__":
