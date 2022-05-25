@@ -279,7 +279,27 @@ class FlowStep(nn.Module):
         return z, logdet
 
     def reverse_flow(self, x, logdet):
-        pass
+
+        # 1.coupling
+        z1, z2 = split_feature(x, "split")
+        if self.flow_coupling == "additive":
+            z2 = z2 - self.block(z1)
+        elif self.flow_coupling == "affine":
+            h = self.block(z1)
+            shift, scale = split_feature(h, "cross")
+            scale = torch.sigmoid(scale + 2.0)
+            z2 = z2 / scale
+            z2 = z2 - shift
+            logdet = -torch.sum(torch.log(scale), dim=[1, 2, 3]) + logdet
+        z = torch.cat((z1, z2), dim=1)
+
+        # 2. permute
+        z, logdet = self.flow_permutation(z, logdet, True)
+
+        # 3. actnorm
+        z, logdet = self.actnorm(z, logdet=logdet, reverse=True)
+
+        return z, logdet
 
 
 
