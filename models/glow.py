@@ -16,6 +16,11 @@ def get_block(in_channels, out_channels, hidden_channels):
         nn.ReLU(inplace=False),
         nn.Conv2d(hidden_channels, out_channels),
     )
+
+    for mod in block.children():
+        if isinstance(mod, nn.Conv2d):
+           nn.init.zeros_(mod.weight)
+           nn.init.zeros_(mod.bias)
     return block
 
 def split_feature(tensor, type="split"):
@@ -279,7 +284,6 @@ class FlowStep(nn.Module):
         return z, logdet
 
     def reverse_flow(self, x, logdet):
-
         # 1.coupling
         z1, z2 = split_feature(x, "split")
         if self.flow_coupling == "additive":
@@ -302,8 +306,8 @@ class FlowStep(nn.Module):
         return z, logdet
 
 
-
 if __name__ == "__main__":
+    print("validating actnorm layer")
     a = torch.randn(3, 8, 32, 32)
     print(a.shape)
     x = squeeze2d(a, 2)
@@ -311,3 +315,6 @@ if __name__ == "__main__":
     y = unsqueeze2d(x, 2)
     print(y.shape)
     print((a - y).norm())
+
+    print("validating flow layer")
+    # fmod = FlowStep()
