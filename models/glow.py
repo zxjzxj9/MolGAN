@@ -317,4 +317,5 @@ if __name__ == "__main__":
     print((a - y).norm())
 
     print("validating flow layer")
-    # fmod = FlowStep()
+    a = torch.randn(3, 8, 32, 32)
+    fmod = FlowStep(32, 64, 1.0, "inv_conv", "affine", False)
