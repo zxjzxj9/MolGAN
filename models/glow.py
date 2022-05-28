@@ -319,3 +319,7 @@ if __name__ == "__main__":
     print("validating flow layer")
     a = torch.randn(3, 8, 32, 32)
     fmod = FlowStep(32, 64, 1.0, "inv_conv", "affine", False)
+    x, det1 = fmod(a, reversed=False)
+    y, det2 = fmod(x, reversed=True)
+    print((x-y).nrom())
+    print(det1 + det2)
