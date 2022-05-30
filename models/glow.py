@@ -112,7 +112,7 @@ class ActNorm2d(nn.Module):
         super().__init__()
 
         # nchw
-        size = (1, 1, num_features, 1)
+        size = (1, num_features, 1, 1)
         self.bias = nn.Parameter(torch.zeros(*size))
         self.logs = nn.Parameter(torch.zeros(*size))
         self.num_features = num_features
@@ -124,6 +124,7 @@ class ActNorm2d(nn.Module):
             bias = -torch.mean(x, dim=[0, 2, 3], keepdim=True)
             vars = torch.mean((x + bias) ** 2, dim=[0, 2, 3], keepdim=True)
             logs = torch.log(self.scale / (torch.sqrt(vars) + 1e-6))
+            # print(bias.shape, vars.shape)
             self.bias.data.copy_(bias)
             self.logs.data.copy_(logs)
         self.inited = True
@@ -356,7 +357,7 @@ if __name__ == "__main__":
     print("Validating flow layer")
     a = torch.randn(3, 8, 32, 32)
     fmod = FlowStep(32, 64, 1.0, "inv_conv", "affine", False)
-    x, det1 = fmod(a, reversed=False)
-    y, det2 = fmod(x, reversed=True)
+    x, det1 = fmod(a, reverse=False)
+    y, det2 = fmod(x, reverse=True)
     print((x-y).nrom())
     print(det1 + det2)
