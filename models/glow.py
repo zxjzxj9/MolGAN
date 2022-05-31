@@ -237,14 +237,14 @@ class InvertibleConv1x1(nn.Module):
         return weight.view(self.w_shape[0], self.w_shape[1], 1, 1), dlogdet
 
     def forward(self, x, logdet=None, reverse=False):
-        weight, dlogdet = self.get_weight(input, reverse)
+        weight, dlogdet = self.get_weight(x, reverse)
         if not reverse:
-            z = F.conv2d(input, weight)
+            z = F.conv2d(x, weight)
             if logdet is not None:
                 logdet = logdet + dlogdet
             return z, logdet
         else:
-            z = F.conv2d(input, weight)
+            z = F.conv2d(x, weight)
             if logdet is not None:
                 logdet = logdet - dlogdet
             return z, logdet
@@ -301,6 +301,7 @@ class FlowStep(nn.Module):
 
     def normal_flow(self, x, logdet):
         # 1. actnorm
+        print("#", x.shape)
         z, logdet = self.actnorm(x, logdet=logdet, reverse=False)
 
         # 2. permute
@@ -356,7 +357,7 @@ if __name__ == "__main__":
 
     print("Validating flow layer")
     a = torch.randn(3, 8, 32, 32)
-    fmod = FlowStep(32, 64, 1.0, "inv_conv", "affine", False)
+    fmod = FlowStep(8, 16, 1.0, "inv_conv", "affine", False)
     x, det1 = fmod(a, reverse=False)
     y, det2 = fmod(x, reverse=True)
     print((x-y).nrom())
