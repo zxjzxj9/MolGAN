@@ -58,6 +58,7 @@ def get_block(in_channels, out_channels, hidden_channels):
         nn.ReLU(inplace=False),
         Conv2dZeros(hidden_channels, out_channels),
     )
+    return block
 
 
 def split_feature(tensor, type="split"):
@@ -278,6 +279,7 @@ class FlowStep(nn.Module):
     def __init__(self, c_in, c_hid, act_s, flow_perm, flow_coup, lu):
         super().__init__()
         self.actnorm = ActNorm2d(c_in, act_s)
+        self.flow_coup = flow_coup
 
         if flow_perm == "inv_conv":
             self.perm = InvertibleConv1x1(c_in, lu)
@@ -309,9 +311,9 @@ class FlowStep(nn.Module):
 
         # 3. coupling
         z1, z2 = split_feature(z, "split")
-        if self.flow_coupling == "additive":
+        if self.flow_coup == "additive":
             z2 = z2 + self.block(z1)
-        elif self.flow_coupling == "affine":
+        elif self.flow_coup == "affine":
             h = self.block(z1)
             shift, scale = split_feature(h, "cross")
             scale = torch.sigmoid(scale + 2.0)
@@ -325,9 +327,9 @@ class FlowStep(nn.Module):
     def reverse_flow(self, x, logdet):
         # 1.coupling
         z1, z2 = split_feature(x, "split")
-        if self.flow_coupling == "additive":
+        if self.flow_coup == "additive":
             z2 = z2 - self.block(z1)
-        elif self.flow_coupling == "affine":
+        elif self.flow_coup == "affine":
             h = self.block(z1)
             shift, scale = split_feature(h, "cross")
             scale = torch.sigmoid(scale + 2.0)
