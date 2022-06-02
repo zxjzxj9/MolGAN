@@ -142,12 +142,14 @@ class ActNorm2d(nn.Module):
         else:
             x = x * self.logs.neg().exp()
 
+        n, c, h, w = x.shape
+        dlogdet = self.logs.sum() * h * w
+        if reverse:
+            dlogdet *= -1
         if logdet is not None:
-            n, c, h, w = x.shape
-            dlogdet = self.logs.sum() * h * w
-            if reverse:
-                dlogdet *= -1
             logdet += dlogdet
+        else:
+            logdet = dlogdet
         return x, logdet
 
     def forward(self, x, logdet=None, reverse=False):
@@ -243,11 +245,15 @@ class InvertibleConv1x1(nn.Module):
             z = F.conv2d(x, weight)
             if logdet is not None:
                 logdet = logdet + dlogdet
+            else:
+                logdet = dlogdet
             return z, logdet
         else:
             z = F.conv2d(x, weight)
             if logdet is not None:
                 logdet = logdet - dlogdet
+            else:
+                logdet = -dlogdet
             return z, logdet
 
 
@@ -261,7 +267,7 @@ class Split2d(nn.Module):
         h = self.conv(z)
         return split_feature(h, "cross")
 
-    def forward(self, input, logdet=0.0, reverse=False, temperature=None):
+    def forward(self, input, logdet=None, reverse=False, temperature=None):
         if reverse:
             z1 = input
             mean, logs = self.split2d_prior(z1)
@@ -301,7 +307,7 @@ class FlowStep(nn.Module):
         else:
             return self.reverse_flow(x, logdet)
 
-    def normal_flow(self, x, logdet):
+    def normal_flow(self, x, logdet=None):
         # 1. actnorm
         print("#", x.shape)
         z, logdet = self.actnorm(x, logdet=logdet, reverse=False)
@@ -319,12 +325,16 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 + shift
             z2 = z2 * scale
-            logdet = torch.sum(torch.log(scale), dim=[1, 2, 3]) + logdet
+            if logdet is None:
+                logdet = torch.sum(torch.log(scale), dim=[1, 2, 3])
+            else:
+                logdet += torch.sum(torch.log(scale), dim=[1, 2, 3])
+
         z = torch.cat((z1, z2), dim=1)
 
         return z, logdet
 
-    def reverse_flow(self, x, logdet):
+    def reverse_flow(self, x, logdet=None):
         # 1.coupling
         z1, z2 = split_feature(x, "split")
         if self.flow_coup == "additive":
@@ -335,7 +345,10 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 / scale
             z2 = z2 - shift
-            logdet = -torch.sum(torch.log(scale), dim=[1, 2, 3]) + logdet
+            if logdet is None:
+                logdet = -torch.sum(torch.log(scale), dim=[1, 2, 3])
+            else:
+                logdet -= torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
         # 2. permute
