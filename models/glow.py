@@ -328,7 +328,7 @@ class FlowStep(nn.Module):
             if logdet is None:
                 logdet = torch.sum(torch.log(scale), dim=[1, 2, 3])
             else:
-                logdet += torch.sum(torch.log(scale), dim=[1, 2, 3])
+                logdet = logdet + torch.sum(torch.log(scale), dim=[1, 2, 3])
 
         z = torch.cat((z1, z2), dim=1)
 
@@ -348,11 +348,11 @@ class FlowStep(nn.Module):
             if logdet is None:
                 logdet = -torch.sum(torch.log(scale), dim=[1, 2, 3])
             else:
-                logdet -= torch.sum(torch.log(scale), dim=[1, 2, 3])
+                logdet = logdet - torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
         # 2. permute
-        z, logdet = self.flow_permutation(z, logdet, True)
+        z, logdet = self.perm(z, logdet, True)
 
         # 3. actnorm
         z, logdet = self.actnorm(z, logdet=logdet, reverse=True)
@@ -375,5 +375,5 @@ if __name__ == "__main__":
     fmod = FlowStep(8, 16, 1.0, "inv_conv", "affine", False)
     x, det1 = fmod(a, reverse=False)
     y, det2 = fmod(x, reverse=True)
-    print((x-y).nrom())
+    print((a-y).norm())
     print(det1 + det2)
