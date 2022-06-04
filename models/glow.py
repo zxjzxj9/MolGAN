@@ -374,6 +374,7 @@ if __name__ == "__main__":
     a = torch.randn(3, 8, 32, 32)
     fmod = FlowStep(8, 16, 1.0, "inv_conv", "affine", False)
     x, det1 = fmod(a, reverse=False)
+    print(x.shape)
     y, det2 = fmod(x, reverse=True)
     print((a-y).norm())
     print(det1 + det2)
