@@ -360,6 +360,13 @@ class FlowStep(nn.Module):
         return z, logdet
 
 
+class FlowNet(nn.Module):
+    def __init__(self, img_size, channel, K, L, act_s, flow_perm, flow_coup, lu):
+        super().__init__()
+
+
+
+
 if __name__ == "__main__":
     print("Validating actnorm layer")
     a = torch.randn(3, 8, 32, 32)
