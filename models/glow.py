@@ -364,7 +364,11 @@ class FlowNet(nn.Module):
     def __init__(self, img_size, channel, K, L, act_s, flow_perm, flow_coup, lu):
         super().__init__()
 
+    def normal_flow(self, x, logdet=None):
+        pass
 
+    def reverse_flow(self, x, logdet=None):
+        pass
 
 
 if __name__ == "__main__":
