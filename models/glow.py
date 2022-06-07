@@ -361,14 +361,45 @@ class FlowStep(nn.Module):
 
 
 class FlowNet(nn.Module):
-    def __init__(self, img_size, channel, K, L, act_s, flow_perm, flow_coup, lu):
+    def __init__(self, img_size, c_hid, K, L, act_s, flow_perm, flow_coup, lu):
         super().__init__()
 
-    def normal_flow(self, x, logdet=None):
-        pass
+        self.layers = nn.ModuleList([])
+        self.output_shapes = []
+        self.K = K
+        self.L = L
 
-    def reverse_flow(self, x, logdet=None):
-        pass
+        C, H, W = img_size
+        for i in range(L):
+            C, H, W = C*4, H//2, W//2
+            self.layers.append(Squeeze(factor=2))
+            self.output_shapes.append([-1, C, H, W])
+
+            for _ in range(K):
+                self.layers.append(
+                    FlowStep(
+                        in_channels=C,
+                        hidden_channels=c_hid,
+                        actnorm_scale=act_s,
+                        flow_permutation=flow_perm,
+                        flow_coupling=flow_coup,
+                        LU_decomposed=lu,
+                    )
+                )
+                self.output_shapes.append([-1, C, H, W])
+
+            # 3. Split2d
+            if i < L - 1:
+                self.layers.append(Split2d(num_channels=C))
+                self.output_shapes.append([-1, C // 2, H, W])
+                C = C // 2
+
+    def forward(self, input, logdet=0.0, reverse=False, temperature=None):
+        if reverse:
+            return self.decode(input, temperature)
+        else:
+            return self.encode(input, logdet)
+
 
 
 if __name__ == "__main__":
