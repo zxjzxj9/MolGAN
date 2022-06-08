@@ -400,6 +400,19 @@ class FlowNet(nn.Module):
         else:
             return self.encode(input, logdet)
 
+    def encode(self, z, logdet=0.0):
+        for layer, shape in zip(self.layers, self.output_shapes):
+            z, logdet = layer(z, logdet, reverse=False)
+        return z, logdet
+
+    def decode(self, z, temperature=None):
+        for layer in reversed(self.layers):
+            if isinstance(layer, Split2d):
+                z, logdet = layer(z, logdet=0, reverse=True, temperature=temperature)
+            else:
+                z, logdet = layer(z, logdet=0, reverse=True)
+        return z
+
 
 
 if __name__ == "__main__":
