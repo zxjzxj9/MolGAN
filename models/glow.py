@@ -413,6 +413,19 @@ class FlowNet(nn.Module):
                 z, logdet = layer(z, logdet=0, reverse=True)
         return z
 
+class Glow(nn.Module):
+
+    def __init__(self):
+        pass
+
+    def forward(self):
+        pass
+
+    def encode(self):
+        pass
+
+    def decode(self):
+        pass
 
 
 if __name__ == "__main__":
