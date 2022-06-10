@@ -415,8 +415,23 @@ class FlowNet(nn.Module):
 
 class Glow(nn.Module):
 
-    def __init__(self):
-        pass
+    def __init__(self, img_size, c_hid, K, L, act_s, flow_perm, flow_coup, lu,
+                 y_classes, learn_top, y_condition):
+        self.flow = FlowNet(
+            image_shape=img_size,
+            hidden_channels=c_hid,
+            K=K,
+            L=L,
+            actnorm_scale=act_s,
+            flow_permutation=flow_perm,
+            flow_coupling=flow_coup,
+            LU_decomposed=lu,
+        )
+        self.y_classes = y_classes
+        self.y_condition = y_condition
+        self.learn_top = learn_top
+
+
 
     def forward(self):
         pass
