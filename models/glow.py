@@ -50,6 +50,23 @@ class Conv2dZeros(nn.Module):
         output = self.conv(x)
         return output * torch.exp(self.logs * self.logscale_factor)
 
+
+class LinearZeros(nn.Module):
+    def __init__(self, in_channels, out_channels, logscale_factor=3):
+        super().__init__()
+
+        self.linear = nn.Linear(in_channels, out_channels)
+        self.linear.weight.data.zero_()
+        self.linear.bias.data.zero_()
+
+        self.logscale_factor = logscale_factor
+
+        self.logs = nn.Parameter(torch.zeros(out_channels))
+
+    def forward(self, x):
+        output = self.linear(x)
+        return output * torch.exp(self.logs * self.logscale_factor)
+
 def get_block(in_channels, out_channels, hidden_channels):
     block = nn.Sequential(
         nn.Conv2d(in_channels, hidden_channels, 3, padding=1),
@@ -431,7 +448,15 @@ class Glow(nn.Module):
         self.y_condition = y_condition
         self.learn_top = learn_top
 
+        # learned prior
+        if learn_top:
+            C = self.flow.output_shapes[-1][1]
+            self.learn_top_fn = Conv2dZeros(C * 2, C * 2)
 
+        if y_condition:
+            C = self.flow.output_shapes[-1][1]
+            self.project_ycond = LinearZeros(y_classes, 2 * C)
+            self.project_class = LinearZeros(C, y_classes)
 
     def forward(self):
         pass
