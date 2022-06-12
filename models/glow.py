@@ -8,6 +8,25 @@ import math
 
 log2pi = math.log(2 * math.pi)
 
+
+def uniform_binning_correction(x, n_bits=8):
+    """Replaces x^i with q^i(x) = U(x, x + 1.0 / 256.0).
+    Args:
+        x: 4-D Tensor of shape (NCHW)
+        n_bits: optional.
+    Returns:
+        x: x ~ U(x, x + 1.0 / 256)
+        objective: Equivalent to -q(x)*log(q(x)).
+    """
+    b, c, h, w = x.size()
+    n_bins = 2 ** n_bits
+    chw = c * h * w
+    x += torch.zeros_like(x).uniform_(0, 1.0 / n_bins)
+
+    objective = -math.log(n_bins) * chw * torch.ones(b, device=x.device)
+    return x, objective
+
+
 def compute_same_pad(kernel_size, stride):
     if isinstance(kernel_size, int):
         kernel_size = [kernel_size]
@@ -458,15 +477,44 @@ class Glow(nn.Module):
             self.project_ycond = LinearZeros(y_classes, 2 * C)
             self.project_class = LinearZeros(C, y_classes)
 
-    def forward(self):
-        pass
+    def forward(self, x=None, y_onehot=None, z=None, temperature=None, reverse=False):
+        if reverse:
+            return self.reverse_flow(z, y_onehot, temperature)
+        else:
+            return self.normal_flow(x, y_onehot)
 
-    def encode(self):
-        pass
+    def normal_flow(self, x, y_onehot):
+        b, c, h, w = x.shape
 
-    def decode(self):
-        pass
+        x, logdet = uniform_binning_correction(x)
 
+        z, objective = self.flow(x, logdet=logdet, reverse=False)
+
+        mean, logs = self.prior(x, y_onehot)
+        objective += gaussian_likelihood(mean, logs, z)
+
+        if self.y_condition:
+            y_logits = self.project_class(z.mean(2).mean(2))
+        else:
+            y_logits = None
+
+        # Full objective - converted to bits per dimension
+        bpd = (-objective) / (math.log(2.0) * c * h * w)
+
+        return z, bpd, y_logits
+
+    def reverse_flow(self, z, y_onehot, temperature):
+        with torch.no_grad():
+            if z is None:
+                mean, logs = self.prior(z, y_onehot)
+                z = gaussian_sample(mean, logs, temperature)
+            x = self.flow(z, temperature=temperature, reverse=True)
+        return x
+
+    def set_actnorm_init(self):
+        for name, m in self.named_modules():
+            if isinstance(m, ActNorm2d):
+                m.inited = True
 
 if __name__ == "__main__":
     print("Validating actnorm layer")
