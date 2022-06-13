@@ -10,14 +10,6 @@ log2pi = math.log(2 * math.pi)
 
 
 def uniform_binning_correction(x, n_bits=8):
-    """Replaces x^i with q^i(x) = U(x, x + 1.0 / 256.0).
-    Args:
-        x: 4-D Tensor of shape (NCHW)
-        n_bits: optional.
-    Returns:
-        x: x ~ U(x, x + 1.0 / 256)
-        objective: Equivalent to -q(x)*log(q(x)).
-    """
     b, c, h, w = x.size()
     n_bins = 2 ** n_bits
     chw = c * h * w
