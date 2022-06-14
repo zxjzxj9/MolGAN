@@ -526,3 +526,8 @@ if __name__ == "__main__":
     y, det2 = fmod(x, reverse=True)
     print((a-y).norm())
     print(det1 + det2)
+
+    print("Validating glow model")
+    glow = Glow(img_siz=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
+                flow_perm="inv_conv", flow_coup="affine", lu=False,
+                y_classes=10, learn_top=False, y_condition=None)
