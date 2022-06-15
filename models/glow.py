@@ -406,12 +406,12 @@ class FlowNet(nn.Module):
             for _ in range(K):
                 self.layers.append(
                     FlowStep(
-                        in_channels=C,
-                        hidden_channels=c_hid,
-                        actnorm_scale=act_s,
-                        flow_permutation=flow_perm,
-                        flow_coupling=flow_coup,
-                        LU_decomposed=lu,
+                        c_in=C,
+                        c_hid=c_hid,
+                        act_s=act_s,
+                        flow_perm=flow_perm,
+                        flow_coup=flow_coup,
+                        lu=lu,
                     )
                 )
                 self.output_shapes.append([-1, C, H, W])
@@ -445,15 +445,16 @@ class Glow(nn.Module):
 
     def __init__(self, img_size, c_hid, K, L, act_s, flow_perm, flow_coup, lu,
                  y_classes, learn_top, y_condition):
+        super().__init__()
         self.flow = FlowNet(
-            image_shape=img_size,
-            hidden_channels=c_hid,
+            img_size=img_size,
+            c_hid=c_hid,
             K=K,
             L=L,
-            actnorm_scale=act_s,
-            flow_permutation=flow_perm,
-            flow_coupling=flow_coup,
-            LU_decomposed=lu,
+            act_s=act_s,
+            flow_perm=flow_perm,
+            flow_coup=flow_coup,
+            lu=lu,
         )
         self.y_classes = y_classes
         self.y_condition = y_condition
@@ -528,6 +529,6 @@ if __name__ == "__main__":
     print(det1 + det2)
 
     print("Validating glow model")
-    glow = Glow(img_siz=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
+    glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
                 flow_perm="inv_conv", flow_coup="affine", lu=False,
                 y_classes=10, learn_top=False, y_condition=None)
