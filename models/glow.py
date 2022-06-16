@@ -470,6 +470,37 @@ class Glow(nn.Module):
             self.project_ycond = LinearZeros(y_classes, 2 * C)
             self.project_class = LinearZeros(C, y_classes)
 
+        self.register_buffer(
+            "prior_h",
+            torch.zeros(
+                [
+                    1,
+                    self.flow.output_shapes[-1][1] * 2,
+                    self.flow.output_shapes[-1][2],
+                    self.flow.output_shapes[-1][3],
+                ]
+            ),
+        )
+
+    def prior(self, data, y_onehot=None):
+        if data is not None:
+            h = self.prior_h.repeat(data.shape[0], 1, 1, 1)
+        else:
+            # Hardcoded a batch size of 32 here
+            h = self.prior_h.repeat(32, 1, 1, 1)
+
+        channels = h.size(1)
+
+        if self.learn_top:
+            h = self.learn_top_fn(h)
+
+        if self.y_condition:
+            assert y_onehot is not None
+            yp = self.project_ycond(y_onehot)
+            h += yp.view(h.shape[0], channels, 1, 1)
+
+        return split_feature(h, "split")
+
     def forward(self, x=None, y_onehot=None, z=None, temperature=None, reverse=False):
         if reverse:
             return self.reverse_flow(z, y_onehot, temperature)
@@ -532,3 +563,6 @@ if __name__ == "__main__":
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
                 flow_perm="inv_conv", flow_coup="affine", lu=False,
                 y_classes=10, learn_top=False, y_condition=None)
+
+    x = torch.randn(48, 3, 32, 32)
+    y, logdet = glow(x)
