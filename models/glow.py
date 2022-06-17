@@ -337,7 +337,7 @@ class FlowStep(nn.Module):
 
     def normal_flow(self, x, logdet=None):
         # 1. actnorm
-        print("#", x.shape)
+        # print("#", x.shape)
         z, logdet = self.actnorm(x, logdet=logdet, reverse=False)
 
         # 2. permute
@@ -515,6 +515,7 @@ class Glow(nn.Module):
         z, objective = self.flow(x, logdet=logdet, reverse=False)
 
         mean, logs = self.prior(x, y_onehot)
+        print(mean.shape, logs.shape, z.shape)
         objective += gaussian_likelihood(mean, logs, z)
 
         if self.y_condition:
@@ -566,3 +567,4 @@ if __name__ == "__main__":
 
     x = torch.randn(48, 3, 32, 32)
     y, logdet = glow(x)
+    t, s = glow(y, reversed=True)
