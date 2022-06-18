@@ -519,7 +519,7 @@ class Glow(nn.Module):
         objective += gaussian_likelihood(mean, logs, z)
 
         if self.y_condition:
-            y_logits = self.project_class(z.mean(2).mean(2))
+            y_logits = self.project_class(z.mean(dim=[1, 2]))
         else:
             y_logits = None
 
