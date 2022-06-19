@@ -430,6 +430,7 @@ class FlowNet(nn.Module):
 
     def encode(self, z, logdet=0.0):
         for layer, shape in zip(self.layers, self.output_shapes):
+            print(z.shape)
             z, logdet = layer(z, logdet, reverse=False)
         return z, logdet
 
