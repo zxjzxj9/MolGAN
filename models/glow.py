@@ -430,7 +430,7 @@ class FlowNet(nn.Module):
 
     def encode(self, z, logdet=0.0):
         for layer, shape in zip(self.layers, self.output_shapes):
-            print(z.shape)
+            # print(z.shape)
             z, logdet = layer(z, logdet, reverse=False)
         return z, logdet
 
@@ -565,7 +565,8 @@ if __name__ == "__main__":
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
                 flow_perm="inv_conv", flow_coup="affine", lu=False,
                 y_classes=10, learn_top=False, y_condition=None)
-
+    print(glow)
+    print(glow.flow)
     x = torch.randn(48, 3, 32, 32)
-    y, logdet = glow(x)
-    t, s = glow(y, reversed=True)
+    z, logdet = glow(x=x)
+    y, logdet_r = glow(z=z, reversed=True)
