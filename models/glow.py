@@ -288,8 +288,7 @@ class InvertibleConv1x1(nn.Module):
 class Split2d(nn.Module):
     def __init__(self, num_channels):
         super().__init__()
-        self.conv = nn.Conv2d(num_channels // 2, num_channels, 3, padding=1)
-
+        self.conv = Conv2dZeros(num_channels // 2, num_channels)
 
     def split2d_prior(self, z):
         h = self.conv(z)
@@ -565,8 +564,8 @@ if __name__ == "__main__":
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
                 flow_perm="inv_conv", flow_coup="affine", lu=False,
                 y_classes=10, learn_top=False, y_condition=None)
-    print(glow)
-    print(glow.flow)
+    # print(glow)
+    # print(glow.flow)
     x = torch.randn(48, 3, 32, 32)
     z, logdet = glow(x=x)
     y, logdet_r = glow(z=z, reversed=True)
