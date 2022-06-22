@@ -317,11 +317,19 @@ class FlowStep(nn.Module):
         if flow_perm == "inv_conv":
             self.perm = InvertibleConv1x1(c_in, lu)
         elif flow_perm == "shuffle":
-            # self.perm = Permute2d(c_in, shuffle=True)
             pass
+            # self.shuffle = Permute2d(in_channels, shuffle=True)
+            # self.flow_permutation = lambda z, logdet, rev: (
+            #     self.shuffle(z, rev),
+            #     logdet,
+            # )
         else:
-            # self.perm = Permute2d(c_in, shuffle=True)
             pass
+            # self.reverse = Permute2d(in_channels, shuffle=False)
+            # self.flow_permutation = lambda z, logdet, rev: (
+            #     self.reverse(z, rev),
+            #     logdet,
+            # )
 
         if flow_coup == "additive":
             self.block = get_block(c_in // 2, c_in // 2, c_hid)
