@@ -362,11 +362,7 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 + shift
             z2 = z2 * scale
-            if logdet is None:
-                logdet = torch.sum(torch.log(scale), dim=[1, 2, 3])
-            else:
-                logdet = logdet + torch.sum(torch.log(scale), dim=[1, 2, 3])
-
+            logdet = logdet + torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
         return z, logdet
@@ -382,10 +378,7 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 / scale
             z2 = z2 - shift
-            if logdet is None:
-                logdet = -torch.sum(torch.log(scale), dim=[1, 2, 3])
-            else:
-                logdet = logdet - torch.sum(torch.log(scale), dim=[1, 2, 3])
+            logdet = logdet - torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
         # 2. permute
