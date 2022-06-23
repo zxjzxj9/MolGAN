@@ -343,6 +343,8 @@ class FlowStep(nn.Module):
             return self.reverse_flow(x, logdet)
 
     def normal_flow(self, x, logdet=None):
+        assert x.size(1) % 2 == 0
+
         # 1. actnorm
         # print("#", x.shape)
         z, logdet = self.actnorm(x, logdet=logdet, reverse=False)
