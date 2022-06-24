@@ -557,11 +557,11 @@ if __name__ == "__main__":
     print("Validating flow layer")
     a = torch.randn(3, 8, 32, 32)
     fmod = FlowStep(8, 16, 1.0, "inv_conv", "affine", False)
-    x, det1 = fmod(a, reverse=False)
-    print(x.shape)
-    y, det2 = fmod(x, reverse=True)
+    x, det = fmod(a, reverse=False)
+    print(x.shape, det)
+    y, det = fmod(x, logdet=det, reverse=True)
     print((a-y).norm())
-    print(det1 + det2)
+    print(det)
 
     print("Validating glow model")
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
