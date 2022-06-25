@@ -32,15 +32,16 @@ def compute_same_pad(kernel_size, stride):
 
     return [((k - 1) * s + 1) // 2 for k, s in zip(kernel_size, stride)]
 
+
 class Conv2dZeros(nn.Module):
     def __init__(
-        self,
-        in_channels,
-        out_channels,
-        kernel_size=(3, 3),
-        stride=(1, 1),
-        padding="same",
-        logscale_factor=3,
+            self,
+            in_channels,
+            out_channels,
+            kernel_size=(3, 3),
+            stride=(1, 1),
+            padding="same",
+            logscale_factor=3,
     ):
         super().__init__()
 
@@ -78,6 +79,7 @@ class LinearZeros(nn.Module):
         output = self.linear(x)
         return output * torch.exp(self.logs * self.logscale_factor)
 
+
 def get_block(in_channels, out_channels, hidden_channels):
     block = nn.Sequential(
         nn.Conv2d(in_channels, hidden_channels, 3, padding=1),
@@ -95,7 +97,7 @@ def split_feature(tensor, type="split"):
     """
     C = tensor.size(1)
     if type == "split":
-        return tensor[:, : C // 2, ...], tensor[:, C // 2 :, ...]
+        return tensor[:, : C // 2, ...], tensor[:, C // 2:, ...]
     elif type == "cross":
         return tensor[:, 0::2, ...], tensor[:, 1::2, ...]
 
@@ -401,7 +403,7 @@ class FlowNet(nn.Module):
 
         C, H, W = img_size
         for i in range(L):
-            C, H, W = C*4, H//2, W//2
+            C, H, W = C * 4, H // 2, W // 2
             self.layers.append(Squeeze(factor=2))
             self.output_shapes.append([-1, C, H, W])
 
@@ -443,6 +445,7 @@ class FlowNet(nn.Module):
             else:
                 z, logdet = layer(z, logdet=0, reverse=True)
         return z
+
 
 class Glow(nn.Module):
 
@@ -544,6 +547,7 @@ class Glow(nn.Module):
             if isinstance(m, ActNorm2d):
                 m.inited = True
 
+
 if __name__ == "__main__":
     print("Validating actnorm layer")
     a = torch.randn(3, 8, 32, 32)
@@ -560,8 +564,18 @@ if __name__ == "__main__":
     x, det = fmod(a, reverse=False)
     print(x.shape, det)
     y, det = fmod(x, logdet=det, reverse=True)
-    print((a-y).norm())
+    print((a - y).norm())
     print(det)
+
+    # print("Validating flow model")
+    # a = torch.randn(3, 8, 32, 32)
+    # fmod = FlowNet(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
+    #                flow_perm="inv_conv", flow_coup="affine", lu=False)
+    # x, det = fmod(a, reverse=False)
+    # print(x.shape, det)
+    # y, det = fmod(x, logdet=det, reverse=True)
+    # print((a - y).norm())
+    # print(det)
 
     print("Validating glow model")
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
@@ -569,6 +583,9 @@ if __name__ == "__main__":
                 y_classes=10, learn_top=False, y_condition=None)
     # print(glow)
     # print(glow.flow)
-    x = torch.randn(48, 3, 32, 32)
-    z, logdet = glow(x=x)
-    y, logdet_r = glow(z=z, reversed=True)
+    x = torch.randn(48, 3, 64, 64)
+    z, det = glow(x=x)
+    print(x.shape, det)
+    y, det = glow(z=z, reverse=True)
+    print((a - y).norm())
+    print(det)
