@@ -444,7 +444,7 @@ class FlowNet(nn.Module):
                 z, logdet = layer(z, logdet=0, reverse=True, temperature=temperature)
             else:
                 z, logdet = layer(z, logdet=0, reverse=True)
-        return z
+        return z, logdet
 
 
 class Glow(nn.Module):
@@ -584,8 +584,8 @@ if __name__ == "__main__":
     # print(glow)
     # print(glow.flow)
     x = torch.randn(48, 3, 64, 64)
-    z, det = glow(x=x)
-    print(x.shape, det)
+    z, bpd, _ = glow(x=x)
+    print(x.shape, bpd)
     y, det = glow(z=z, reverse=True)
     print((a - y).norm())
     print(det)
