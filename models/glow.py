@@ -296,7 +296,7 @@ class Split2d(nn.Module):
         h = self.conv(z)
         return split_feature(h, "cross")
 
-    def forward(self, input, logdet=None, reverse=False, temperature=None):
+    def forward(self, input, logdet=None, reverse=False, temperature=1.0):
         if reverse:
             z1 = input
             mean, logs = self.split2d_prior(z1)
@@ -426,7 +426,7 @@ class FlowNet(nn.Module):
                 self.output_shapes.append([-1, C // 2, H, W])
                 C = C // 2
 
-    def forward(self, input, logdet=0.0, reverse=False, temperature=None):
+    def forward(self, input, logdet=0.0, reverse=False, temperature=1.0):
         if reverse:
             return self.decode(input, temperature)
         else:
@@ -438,7 +438,7 @@ class FlowNet(nn.Module):
             z, logdet = layer(z, logdet, reverse=False)
         return z, logdet
 
-    def decode(self, z, temperature=None):
+    def decode(self, z, temperature=1.0):
         for layer in reversed(self.layers):
             if isinstance(layer, Split2d):
                 z, logdet = layer(z, logdet=0, reverse=True, temperature=temperature)
@@ -507,7 +507,7 @@ class Glow(nn.Module):
 
         return split_feature(h, "split")
 
-    def forward(self, x=None, y_onehot=None, z=None, temperature=None, reverse=False):
+    def forward(self, x=None, y_onehot=None, z=None, temperature=1.0, reverse=False):
         if reverse:
             return self.reverse_flow(z, y_onehot, temperature)
         else:
@@ -534,7 +534,7 @@ class Glow(nn.Module):
 
         return z, bpd, y_logits
 
-    def reverse_flow(self, z, y_onehot, temperature):
+    def reverse_flow(self, z, y_onehot, temperature=1.0):
         with torch.no_grad():
             if z is None:
                 mean, logs = self.prior(z, y_onehot)
