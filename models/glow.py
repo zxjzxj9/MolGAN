@@ -587,5 +587,6 @@ if __name__ == "__main__":
     z, bpd, _ = glow(x=x)
     print(x.shape, bpd)
     y, det = glow(z=z, reverse=True)
-    print((a - y).norm())
+    print(x, y)
+    print((x - y).norm())
     print(det)
