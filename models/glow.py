@@ -585,6 +585,7 @@ if __name__ == "__main__":
     # print(glow.flow)
     x = torch.randn(48, 3, 64, 64)
     z, bpd, _ = glow(x=x)
+    glow.set_actnorm_init()
     print(x.shape, bpd)
     y, det = glow(z=z, reverse=True)
     print(x, y)
