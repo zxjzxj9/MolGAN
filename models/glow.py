@@ -436,6 +436,7 @@ class FlowNet(nn.Module):
         for layer, shape in zip(self.layers, self.output_shapes):
             # print(z.shape)
             z, logdet = layer(z, logdet, reverse=False)
+            print(layer, logdet)
         return z, logdet
 
     def decode(self, z, temperature=1.0):
@@ -521,7 +522,7 @@ class Glow(nn.Module):
         z, objective = self.flow(x, logdet=logdet, reverse=False)
 
         mean, logs = self.prior(x, y_onehot)
-        print(mean.shape, logs.shape, z.shape)
+        # print(mean.shape, logs.shape, z.shape)
         objective += gaussian_likelihood(mean, logs, z)
 
         if self.y_condition:
