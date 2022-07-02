@@ -540,8 +540,11 @@ class Glow(nn.Module):
         with torch.no_grad():
             if z is None:
                 mean, logs = self.prior(z, y_onehot)
+                print(mean, logs)
                 z = gaussian_sample(mean, logs, temperature)
+                print(z)
             x = self.flow(z, temperature=temperature, reverse=True)
+            print(x)
         return x
 
     def set_actnorm_init(self):
@@ -585,7 +588,7 @@ if __name__ == "__main__":
                 y_classes=10, learn_top=False, y_condition=None)
     # print(glow)
     # print(glow.flow)
-    x = torch.randn(48, 3, 64, 64)
+    x = torch.randn(2, 3, 64, 64)
     z, bpd, _ = glow(x=x)
     glow.set_actnorm_init()
     print(x.shape, bpd)
