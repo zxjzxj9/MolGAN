@@ -445,6 +445,7 @@ class FlowNet(nn.Module):
                 z, logdet = layer(z, logdet=0, reverse=True, temperature=temperature)
             else:
                 z, logdet = layer(z, logdet=0, reverse=True)
+                # print(z.sum())
         return z, logdet
 
 
@@ -544,7 +545,7 @@ class Glow(nn.Module):
                 z = gaussian_sample(mean, logs, temperature)
                 print(z)
             x = self.flow(z, temperature=temperature, reverse=True)
-            print(x)
+            # print(x.sum())
         return x
 
     def set_actnorm_init(self):
@@ -592,7 +593,8 @@ if __name__ == "__main__":
     z, bpd, _ = glow(x=x)
     glow.set_actnorm_init()
     print(x.shape, bpd)
+    print("###", z.mean())
     y, det = glow(z=z, reverse=True)
     # print(x, y)
     print((x - y).norm())
-    print(det)
+    # print(det)
