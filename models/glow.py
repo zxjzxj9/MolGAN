@@ -364,6 +364,7 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 + shift
             z2 = z2 * scale
+            print(shift, scale); import sys; sys.exit()
             logdet = logdet + torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
@@ -426,17 +427,22 @@ class FlowNet(nn.Module):
                 self.output_shapes.append([-1, C // 2, H, W])
                 C = C // 2
 
-    def forward(self, input, logdet=0.0, reverse=False, temperature=1.0):
+    def forward(self, x, logdet=0.0, reverse=False, temperature=1.0):
         if reverse:
-            return self.decode(input, temperature)
+            return self.decode(x, temperature)
         else:
-            return self.encode(input, logdet)
+            return self.encode(x, logdet)
 
     def encode(self, z, logdet=0.0):
         for layer, shape in zip(self.layers, self.output_shapes):
             # print(z.shape)
-            z, logdet = layer(z, logdet, reverse=False)
             # print(layer, logdet)
+            # print("###")
+            # print(layer)
+            # print(z)
+            # print("###")
+            z, logdet = layer(z, logdet, reverse=False)
+        # print("***", z)
         return z, logdet
 
     def decode(self, z, temperature=1.0):
@@ -521,8 +527,9 @@ class Glow(nn.Module):
         x, logdet = uniform_binning_correction(x)
 
         z, objective = self.flow(x, logdet=logdet, reverse=False)
+        # print("***", z)
 
-        print("###", z.mean(), objective.mean())
+        # print("###", z.mean(), objective.mean())
         mean, logs = self.prior(x, y_onehot)
         # print(mean.shape, logs.shape, z.shape)
         objective += gaussian_likelihood(mean, logs, z)
@@ -593,7 +600,7 @@ if __name__ == "__main__":
     z, bpd, _ = glow(x=x)
     glow.set_actnorm_init()
     print(x.shape, bpd)
-    print("###", z.mean())
+    print("###", z, z.mean())
     y, det = glow(z=z, reverse=True)
     # print(x, y)
     print((x - y).norm())
