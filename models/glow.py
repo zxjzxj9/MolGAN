@@ -364,7 +364,7 @@ class FlowStep(nn.Module):
             scale = torch.sigmoid(scale + 2.0)
             z2 = z2 + shift
             z2 = z2 * scale
-            print(shift, scale); import sys; sys.exit()
+            # print(shift, scale); import sys; sys.exit()
             logdet = logdet + torch.sum(torch.log(scale), dim=[1, 2, 3])
         z = torch.cat((z1, z2), dim=1)
 
@@ -580,15 +580,15 @@ if __name__ == "__main__":
     print((a - y).norm())
     print(det)
 
-    # print("Validating flow model")
-    # a = torch.randn(3, 8, 32, 32)
-    # fmod = FlowNet(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
-    #                flow_perm="inv_conv", flow_coup="affine", lu=False)
-    # x, det = fmod(a, reverse=False)
-    # print(x.shape, det)
-    # y, det = fmod(x, logdet=det, reverse=True)
-    # print((a - y).norm())
-    # print(det)
+    print("Validating flow model")
+    a = torch.randn(4, 3, 64, 64)
+    fmod = FlowNet(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
+                   flow_perm="inv_conv", flow_coup="affine", lu=False)
+    x, det = fmod(a, reverse=False)
+    print(x.shape, det)
+    y, det = fmod(x, logdet=det, reverse=True)
+    print((a - y).norm())
+    print(det)
 
     print("Validating glow model")
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
