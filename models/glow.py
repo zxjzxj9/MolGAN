@@ -582,26 +582,26 @@ if __name__ == "__main__":
 
     print("Validating flow model")
     a = torch.randn(4, 3, 64, 64)
-    fmod = FlowNet(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
+    fmod = FlowNet(img_size=(3, 64, 64), c_hid=32, K=2, L=1, act_s=1.0,
                    flow_perm="inv_conv", flow_coup="affine", lu=False)
     x, det = fmod(a, reverse=False)
-    print(x.shape, det)
+    print(x, det)
     y, det = fmod(x, logdet=det, reverse=True)
     print((a - y).norm())
     print(det)
 
-    print("Validating glow model")
-    glow = Glow(img_size=(3, 64, 64), c_hid=32, K=32, L=3, act_s=1.0,
-                flow_perm="inv_conv", flow_coup="affine", lu=False,
-                y_classes=10, learn_top=False, y_condition=None)
-    # print(glow)
-    # print(glow.flow)
-    x = torch.randn(2, 3, 64, 64)
-    z, bpd, _ = glow(x=x)
-    glow.set_actnorm_init()
-    print(x.shape, bpd)
-    print("###", z, z.mean())
-    y, det = glow(z=z, reverse=True)
-    # print(x, y)
-    print((x - y).norm())
+    #print("Validating glow model")
+    #glow = Glow(img_size=(3, 64, 64), c_hid=32, K=48, L=3, act_s=1.0,
+    #            flow_perm="inv_conv", flow_coup="affine", lu=False,
+    #            y_classes=10, learn_top=False, y_condition=None)
+    ## print(glow)
+    ## print(glow.flow)
+    #x = torch.randn(2, 3, 64, 64)
+    #z, bpd, _ = glow(x=x)
+    #glow.set_actnorm_init()
+    #print(x.shape, bpd)
+    #print("###", z, z.mean())
+    #y, det = glow(z=z, reverse=True)
+    ## print(x, y)
+    #print((x - y).norm())
     # print(det)
