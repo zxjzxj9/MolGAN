@@ -429,7 +429,7 @@ class FlowNet(nn.Module):
 
     def forward(self, x, logdet=0.0, reverse=False, temperature=1.0):
         if reverse:
-            return self.decode(x, temperature)
+            return self.decode(x, logdet, temperature)
         else:
             return self.encode(x, logdet)
 
@@ -445,12 +445,12 @@ class FlowNet(nn.Module):
         # print("***", z)
         return z, logdet
 
-    def decode(self, z, temperature=1.0):
+    def decode(self, z, logdet, temperature=1.0):
         for layer in reversed(self.layers):
             if isinstance(layer, Split2d):
-                z, logdet = layer(z, logdet=0, reverse=True, temperature=temperature)
+                z, logdet = layer(z, logdet=logdet, reverse=True, temperature=temperature)
             else:
-                z, logdet = layer(z, logdet=0, reverse=True)
+                z, logdet = layer(z, logdet=logdet, reverse=True)
                 # print(z.sum())
         return z, logdet
 
