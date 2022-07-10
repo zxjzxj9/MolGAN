@@ -590,9 +590,7 @@ if __name__ == "__main__":
     print((a - y).norm())
     print(det)
 
-    import sys;
-
-    sys.exit()
+    import sys; sys.exit()
     print("Validating glow model")
     glow = Glow(img_size=(3, 64, 64), c_hid=32, K=48, L=3, act_s=1.0,
                 flow_perm="inv_conv", flow_coup="affine", lu=False,
